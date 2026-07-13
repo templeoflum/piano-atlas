@@ -63,6 +63,12 @@ body{background:radial-gradient(120% 80% at 50% -10%, #1c1512 0%, var(--ebony) 5
 .flag-count:hover{border-color:var(--crimson)}
 .flag-count .fc-num{color:var(--crimson);font-weight:600}
 .flag-count .fc-flag{color:var(--crimson)}
+.mode-toggle{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;color:var(--ivory-dim);background:var(--lacquer2);
+  border:1px solid var(--line-lit);border-radius:20px;padding:.42rem .8rem;cursor:pointer;display:flex;align-items:center;gap:.45rem;transition:border-color .2s,color .2s}
+.mode-toggle:hover{border-color:var(--verdigris)}
+.mode-toggle .mt-dot{width:8px;height:8px;border-radius:50%;background:var(--faint);transition:background .2s}
+.mode-toggle.on{border-color:var(--verdigris);color:var(--ivory)}
+.mode-toggle.on .mt-dot{background:var(--verdigris)}
 
 /* layout */
 main{max-width:1220px;margin:0 auto;padding:clamp(1.4rem,4vw,3rem) clamp(1rem,4vw,2.4rem) 6rem}
@@ -238,6 +244,29 @@ main{max-width:1220px;margin:0 auto;padding:clamp(1.4rem,4vw,3rem) clamp(1rem,4v
 #improvLadder .rung-caret{color:var(--muted)}
 .rung-unlock{font-family:var(--f-mono)!important;font-size:.7rem!important;color:var(--steel)!important;margin-bottom:.7rem!important}
 
+/* "too much?" calm mode — same content, one idea at a time */
+.calm-view{display:none}
+body.calm #view-bloodlines .graph-tools,
+body.calm #view-bloodlines .split,
+body.calm #view-bloodlines .section-intro{display:none}
+body.calm #view-bloodlines .calm-view{display:block}
+.calm-card{max-width:600px;margin:1.4rem auto 0;background:linear-gradient(180deg,var(--lacquer2),var(--lacquer));
+  border:1px solid var(--line-lit);border-radius:12px;padding:clamp(1.6rem,5vw,2.6rem)}
+.calm-eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:.8rem}
+.calm-title{font-family:var(--f-disp);font-weight:500;font-size:clamp(2rem,6vw,2.7rem);line-height:1.05;margin-bottom:.4rem}
+.calm-meta{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);margin-bottom:1.2rem}
+.calm-body{font-size:1.08rem;color:var(--ivory);margin-bottom:1.2rem}
+.calm-tension{font-size:.95rem;color:var(--ivory-dim);border-left:2px solid var(--crimson);padding-left:1rem;margin-bottom:1.2rem}
+.calm-tension b{color:var(--crimson);font-family:var(--f-mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:.3rem}
+.calm-lineage{display:flex;flex-direction:column;gap:.4rem;font-family:var(--f-mono);font-size:.74rem;color:var(--muted);margin-bottom:1.4rem;border-top:1px dashed var(--line);padding-top:1rem}
+.calm-card .flag-btn{margin-top:.2rem}
+.calm-nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;max-width:600px;margin:1.4rem auto 0}
+.calm-nav button{font-family:var(--f-body);font-size:1rem;background:none;border:1px solid var(--line);color:var(--ivory-dim);
+  border-radius:30px;padding:.7rem 1.3rem;cursor:pointer;min-height:48px;transition:border-color .2s,color .2s,opacity .2s}
+.calm-nav button:hover:not(:disabled){border-color:var(--verdigris);color:var(--ivory)}
+.calm-nav button:disabled{opacity:.3;cursor:default}
+.calm-count{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.12em;color:var(--faint)}
+
 /* flags */
 .flags-intro{border-left:2px solid var(--crimson);padding-left:1rem;max-width:60ch;color:var(--ivory-dim);margin-bottom:1.8rem}
 .flags-intro b{color:var(--crimson)}
@@ -272,6 +301,9 @@ footer{max-width:1220px;margin:0 auto;padding:2rem clamp(1rem,4vw,2.4rem) 4rem;b
     <button class="nav-btn" data-view="system">IV &middot; System</button>
     <button class="nav-btn" data-view="improv">V &middot; Improvisation</button>
   </nav>
+  <button class="mode-toggle" id="modeToggle" aria-pressed="false" title="Show one idea at a time">
+    <span class="mt-dot" aria-hidden="true"></span><span class="mt-txt">Too much?</span>
+  </button>
   <button class="flag-count" id="flagCount" aria-label="View planted flags">
     <span class="fc-flag" aria-hidden="true">&#9873;</span><span class="fc-num" id="fcNum">0</span>&nbsp;flags
   </button>
@@ -318,6 +350,14 @@ footer{max-width:1220px;margin:0 auto;padding:2rem clamp(1rem,4vw,2.4rem) 4rem;b
       <svg id="genealogy" viewBox="0 0 1120 720" role="img" aria-label="Piano teaching genealogy graph"></svg>
     </div>
     <aside class="inspector" id="insp-bloodlines"><p class="insp-empty">Tap a name to trace their lineage and read who they were.</p></aside>
+  </div>
+  <div class="calm-view" id="calm-bloodlines-wrap">
+    <div id="calm-bloodlines"></div>
+    <nav class="calm-nav" aria-label="Move between pianists">
+      <button id="calm-b-prev">&larr; Back</button>
+      <span class="calm-count" id="calm-b-count"></span>
+      <button id="calm-b-next">Next &rarr;</button>
+    </nav>
   </div>
 </section>
 
@@ -723,6 +763,7 @@ function show(v){
   document.getElementById("view-"+v).classList.add("active");
   document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.toggle("active",b.dataset.view===v);});
   if(v==="flags")renderFlags();
+  if(calm&&v==="bloodlines")renderCalmBloodlines();
   window.scrollTo({top:0,behavior:"smooth"});
 }
 document.querySelectorAll(".nav-btn").forEach(function(b){b.addEventListener("click",function(){show(b.dataset.view);});});
@@ -865,6 +906,39 @@ function selectGen(id){
     meta:"b. "+n.yr+" \u00b7 "+nAnc+" upstream \u00b7 "+nDesc+" downstream"+(n.conv?" \u00b7 CONVERGENCE NODE":""),
     body:n.body,crit:n.crit,fid:n.id});
 }
+
+/* ================= "TOO MUCH?" CALM MODE ================= */
+let calm=false, calmBIdx=0;
+function setCalm(on){
+  calm=on;
+  document.body.classList.toggle("calm",on);
+  const t=document.getElementById("modeToggle");
+  t.classList.toggle("on",on); t.setAttribute("aria-pressed",on?"true":"false");
+  t.querySelector(".mt-txt").textContent=on?"Calm mode":"Too much?";
+  if(on&&currentView==="bloodlines")renderCalmBloodlines();
+}
+function calmBList(){return NODES.slice().sort(function(a,b){return a.yr-b.yr;});} // walk the people in time
+function renderCalmBloodlines(){
+  const list=calmBList();
+  if(calmBIdx>=list.length)calmBIdx=0;
+  const n=list[calmBIdx],col=SCHOOLS[n.sc].color;
+  const par=byId[n.id].parents.map(function(id){return byId[id].name;});
+  const kid=byId[n.id].children.map(function(id){return byId[id].name;});
+  document.getElementById("calm-bloodlines").innerHTML='<div class="calm-card">'
+   +'<div class="calm-eyebrow" style="color:'+col+'">'+SCHOOLS[n.sc].name+'</div>'
+   +'<h2 class="calm-title">'+n.name+'</h2>'
+   +'<div class="calm-meta">b. '+n.yr+(n.conv?' · convergence node':'')+'</div>'
+   +'<p class="calm-body">'+n.body+'</p>'
+   +(n.crit?'<div class="calm-tension"><b>the tension</b>'+n.crit+'</div>':'')
+   +((par.length||kid.length)?'<div class="calm-lineage">'
+       +(par.length?'<span>← taught by '+par.join(', ')+'</span>':'')
+       +(kid.length?'<span>taught → '+kid.join(', ')+'</span>':'')+'</div>':'')
+   +flagBtnHTML(n.id)+'</div>';
+  document.getElementById("calm-b-count").textContent=(calmBIdx+1)+" of "+list.length;
+  document.getElementById("calm-b-prev").disabled=calmBIdx===0;
+  document.getElementById("calm-b-next").disabled=calmBIdx===list.length-1;
+}
+function calmBGo(i){const L=calmBList().length;calmBIdx=Math.max(0,Math.min(L-1,i));renderCalmBloodlines();}
 
 /* ================= HANDS ================= */
 function renderHands(){
@@ -1144,6 +1218,11 @@ renderKeys(); renderTerritories(); renderTimeline(); renderLegend(); renderGen()
 renderHands(); renderCoF(); renderLadder();
 renderImprovLegend(); renderImprov(); renderImprovTensions(); renderImprovLadder();
 updateFlagUI();
+
+/* "too much?" calm mode wiring */
+document.getElementById("modeToggle").addEventListener("click",function(){setCalm(!calm);});
+document.getElementById("calm-b-prev").addEventListener("click",function(){calmBGo(calmBIdx-1);});
+document.getElementById("calm-b-next").addEventListener("click",function(){calmBGo(calmBIdx+1);});
 
 /* prime the audio context on the first user gesture so mobile browsers (which start it
    suspended and only allow resume inside a gesture) have it running by the first tap */
