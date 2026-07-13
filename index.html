@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Piano, Mapped &mdash; An Explorable Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ebony:#0E0B0A; --lacquer:#171110; --lacquer2:#201814;
+  --ivory:#ECE3D2; --ivory-dim:#B9AC98; --muted:#8A7D6C; --faint:#5E534A;
+  --line:#2E2520; --line-lit:#453730;
+  --brass:#C8A44D; --crimson:#C94E5A; --bone:#CBAF80; --verdigris:#6DB59B;
+  --brass-deep:#5A4A22; --crimson-deep:#5A2229; --verd-deep:#254539;
+  --shadow:0 18px 50px -18px rgba(0,0,0,.8);
+  --f-disp:'Fraunces',Georgia,serif;
+  --f-body:'IBM Plex Sans',system-ui,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(120% 80% at 50% -10%, #1c1512 0%, var(--ebony) 55%) fixed;
+  color:var(--ivory);font-family:var(--f-body);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--crimson);color:#fff}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px;border-radius:3px}
+
+/* header */
+.atlas-header{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
+  padding:.7rem clamp(1rem,4vw,2.4rem);background:rgba(14,11,10,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:.7rem;margin-right:auto}
+.brand-mark{width:30px;height:30px;flex:0 0 auto;border-radius:3px;background:linear-gradient(160deg,var(--brass),#8a6f2c);
+  position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.brand-mark::before{content:"";position:absolute;inset:5px 4px;border-radius:1px;
+  background:repeating-linear-gradient(90deg,var(--ivory) 0 3px,#000 3px 5px);opacity:.9}
+.brand-txt{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ivory-dim);line-height:1.25}
+.brand-txt b{display:block;color:var(--ivory);font-weight:600}
+.nav{display:flex;gap:.15rem;flex-wrap:wrap}
+.nav-btn{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  background:none;border:1px solid transparent;border-radius:4px;padding:.5rem .7rem;cursor:pointer;transition:color .18s,background .18s}
+.nav-btn:hover{color:var(--ivory)}
+.nav-btn.active{color:var(--ebony);background:var(--ivory)}
+.nav-btn[data-view="instrument"].active{background:var(--brass)}
+.nav-btn[data-view="bloodlines"].active{background:var(--crimson);color:#fff}
+.nav-btn[data-view="hands"].active{background:var(--bone)}
+.nav-btn[data-view="system"].active{background:var(--verdigris)}
+.flag-count{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;color:var(--ivory);background:var(--lacquer2);
+  border:1px solid var(--line-lit);border-radius:20px;padding:.42rem .8rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:border-color .2s}
+.flag-count:hover{border-color:var(--crimson)}
+.flag-count .fc-num{color:var(--crimson);font-weight:600}
+.flag-count .fc-flag{color:var(--crimson)}
+
+/* layout */
+main{max-width:1220px;margin:0 auto;padding:clamp(1.4rem,4vw,3rem) clamp(1rem,4vw,2.4rem) 6rem}
+.view{display:none;animation:fade .45s ease both}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.eyebrow{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.26em;text-transform:uppercase;color:var(--muted)}
+.section-head{margin-bottom:1.6rem;max-width:62ch}
+.section-title{font-family:var(--f-disp);font-weight:500;font-size:clamp(1.9rem,4.4vw,2.9rem);line-height:1.05;margin:.45rem 0 .5rem}
+.section-intro{color:var(--ivory-dim);font-size:1rem}
+.tint-instrument{color:var(--brass)}.tint-bloodlines{color:var(--crimson)}
+.tint-hands{color:var(--bone)}.tint-system{color:var(--verdigris)}
+
+/* overview */
+.hero{padding:1rem 0 .5rem}
+.hero-title{font-family:var(--f-disp);font-weight:500;font-size:clamp(2.7rem,8vw,5rem);line-height:.98;letter-spacing:-.01em;margin:.6rem 0 .8rem}
+.hero-title em{font-style:italic;color:var(--brass);font-weight:400}
+.hero-sub{font-size:clamp(1.02rem,2.4vw,1.28rem);color:var(--ivory-dim);max-width:52ch}
+.keys{width:100%;height:64px;margin:1.8rem 0 .4rem;display:block;opacity:.9}
+.thesis{border-left:2px solid var(--crimson);padding:.2rem 0 .2rem 1.2rem;margin:1.6rem 0 2.4rem;max-width:60ch;font-size:1.04rem}
+.thesis b{color:var(--crimson)}
+.territory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.1rem}
+.tc{--tc:var(--brass);position:relative;text-align:left;cursor:pointer;color:inherit;font:inherit;
+  background:linear-gradient(180deg,var(--lacquer),var(--ebony));border:1px solid var(--line);border-radius:10px;
+  padding:1.5rem 1.4rem 1.2rem;transition:transform .2s,border-color .2s,box-shadow .2s;overflow:hidden}
+.tc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--tc)}
+.tc:hover{transform:translateY(-4px);border-color:var(--tc);box-shadow:var(--shadow)}
+.tc-num{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.2em;color:var(--tc);text-transform:uppercase}
+.tc-name{font-family:var(--f-disp);font-weight:500;font-size:1.55rem;margin:.35rem 0 .45rem}
+.tc-tag{color:var(--ivory-dim);font-size:.93rem;margin-bottom:1rem;min-height:2.5em}
+.tc-enter{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tc)}
+.tc-form{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.08em;color:var(--faint);text-transform:uppercase;margin-top:.8rem;border-top:1px dashed var(--line);padding-top:.65rem}
+
+/* split + inspector */
+.split{display:grid;grid-template-columns:1fr;gap:1.4rem}
+@media(min-width:940px){.split.has-side{grid-template-columns:1fr 340px}}
+.inspector{position:sticky;top:84px;align-self:start;background:linear-gradient(180deg,var(--lacquer2),var(--lacquer));
+  border:1px solid var(--line-lit);border-radius:10px;padding:1.3rem;min-height:170px}
+.insp-empty{color:var(--muted);font-size:.9rem;font-family:var(--f-mono)}
+.insp-eyebrow{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase}
+.insp-title{font-family:var(--f-disp);font-weight:500;font-size:1.5rem;line-height:1.1;margin:.35rem 0 .15rem}
+.insp-meta{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);margin-bottom:.9rem}
+.insp-body{font-size:.95rem;margin-bottom:.9rem}
+.insp-crit{font-size:.86rem;color:var(--ivory-dim);border-left:2px solid var(--crimson);padding-left:.8rem;margin-bottom:1rem}
+.insp-crit b{color:var(--crimson);font-family:var(--f-mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:.2rem}
+.flag-btn{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;background:none;
+  border:1px solid var(--line-lit);color:var(--ivory-dim);border-radius:6px;padding:.55rem .9rem;cursor:pointer;
+  display:inline-flex;align-items:center;gap:.5rem;transition:all .18s}
+.flag-btn:hover{border-color:var(--crimson);color:var(--ivory)}
+.flag-btn.on{background:var(--crimson-deep);border-color:var(--crimson);color:#fff}
+.flag-btn .pin{transition:transform .2s}
+.flag-btn.on .pin{transform:scale(1.25) rotate(-8deg)}
+
+/* timeline */
+.timeline{position:relative;padding-left:1.6rem;max-width:640px}
+.timeline::before{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--brass),var(--brass-deep))}
+.tl-item{position:relative;margin-bottom:.35rem}
+.tl-btn{display:flex;gap:.9rem;align-items:baseline;width:100%;text-align:left;background:none;border:none;color:inherit;font:inherit;cursor:pointer;padding:.7rem .8rem;border-radius:8px;transition:background .18s}
+.tl-btn:hover{background:var(--lacquer)}
+.tl-item.sel .tl-btn{background:var(--lacquer2)}
+.tl-dot{position:absolute;left:-1.6rem;top:1.05rem;width:12px;height:12px;border-radius:50%;background:var(--ebony);border:2px solid var(--brass);transition:all .2s}
+.tl-item.sel .tl-dot,.tl-item:hover .tl-dot{background:var(--brass);box-shadow:0 0 0 4px var(--brass-deep)}
+.tl-year{font-family:var(--f-mono);font-size:.76rem;color:var(--brass);flex:0 0 auto;min-width:4.4em}
+.tl-name{font-family:var(--f-disp);font-weight:500;font-size:1.1rem}
+.tl-who{display:block;font-family:var(--f-mono);font-size:.66rem;color:var(--muted);margin-top:.15rem}
+.tl-fork{position:relative;margin:.3rem 0;padding:.9rem 0 .9rem 1rem;border-left:2px dashed var(--line-lit)}
+.tl-fork-label{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+.fork-cols{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+@media(max-width:560px){.fork-cols{grid-template-columns:1fr}}
+.fork-card{border:1px solid var(--line);border-radius:8px;padding:.8rem;cursor:pointer;background:var(--lacquer);transition:border-color .18s;text-align:left;color:inherit;font:inherit;width:100%}
+.fork-card:hover,.fork-card.sel{border-color:var(--brass)}
+.fk-tag{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--brass)}
+.fk-name{font-family:var(--f-disp);font-weight:500;font-size:1rem;margin:.2rem 0 .1rem}
+.fk-who{font-family:var(--f-mono);font-size:.62rem;color:var(--muted)}
+
+/* genealogy */
+.graph-tools{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:center;margin-bottom:.9rem}
+.legend{display:flex;flex-wrap:wrap;gap:.5rem .9rem}
+.leg{font-family:var(--f-mono);font-size:.64rem;color:var(--ivory-dim);display:flex;align-items:center;gap:.4rem}
+.leg i{width:11px;height:11px;border-radius:50%;display:inline-block}
+.graph-hint{font-family:var(--f-mono);font-size:.62rem;color:var(--muted)}
+.graph-reset{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--line-lit);color:var(--muted);border-radius:5px;padding:.35rem .6rem;cursor:pointer}
+.graph-reset:hover{color:var(--ivory);border-color:var(--crimson)}
+.graph-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;
+  background:linear-gradient(180deg,#120d0c,#0d0908);
+  background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,.03) 1px, transparent 0);background-size:26px 26px}
+#genealogy{display:block;min-width:1120px;height:720px}
+.gedge{stroke:var(--line-lit);stroke-width:1.4;fill:none;transition:opacity .25s,stroke .25s,stroke-width .25s}
+.gedge.dash{stroke-dasharray:4 4}
+.gnode{cursor:pointer}
+.gnode circle{transition:all .2s}
+.gnode text{font-family:var(--f-mono);font-size:11px;fill:var(--ivory-dim);pointer-events:none;transition:fill .2s}
+.gnode:hover text,.gnode.sel text{fill:var(--ivory)}
+.gnode .yr{font-size:8.5px;fill:var(--faint)}
+.dim{opacity:.14}
+.conv-ring{fill:none;stroke-width:1.3;stroke-dasharray:2 2}
+
+/* hands spectrum */
+.spectrum-wrap{border:1px solid var(--line);border-radius:10px;padding:1.6rem 1.2rem 1.1rem;background:linear-gradient(180deg,var(--lacquer),var(--ebony));margin-bottom:1rem}
+.poles{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--bone)}
+.poles .p-sub{display:block;color:var(--muted);text-transform:none;letter-spacing:0;font-size:.64rem;margin-top:.15rem;max-width:20ch}
+.poles .right{text-align:right}
+.axis{position:relative;height:170px;margin:.6rem .5rem .2rem}
+.axis-line{position:absolute;left:0;right:0;top:50%;height:2px;background:linear-gradient(90deg,var(--bone),var(--crimson))}
+.fig{position:absolute;top:50%;cursor:pointer;transform:translate(-50%,-50%);background:none;border:none;color:inherit;font:inherit}
+.fig-dot{width:14px;height:14px;border-radius:50%;background:var(--ebony);border:2px solid var(--bone);margin:0 auto;transition:all .2s}
+.fig[data-camp="weight"] .fig-dot{border-color:var(--crimson)}
+.fig[data-camp="third"] .fig-dot{border-color:var(--verdigris)}
+.fig:hover .fig-dot,.fig.sel .fig-dot{transform:scale(1.4);box-shadow:0 0 0 5px rgba(203,175,128,.15)}
+.fig-label{font-family:var(--f-mono);font-size:.62rem;color:var(--ivory-dim);white-space:normal;text-align:center;width:8.5em;line-height:1.3;position:absolute;left:50%;transform:translateX(-50%)}
+.fig.up .fig-label{bottom:22px}
+.fig.dn .fig-label{top:22px}
+.empirical{border-top:1px dashed var(--line-lit);margin-top:.4rem;padding-top:.9rem}
+.emp-label{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--verdigris);margin-bottom:.6rem}
+.emp-row{display:flex;gap:.7rem;flex-wrap:wrap}
+.emp-card{flex:1 1 200px;border:1px solid var(--verd-deep);border-radius:8px;padding:.7rem .85rem;cursor:pointer;background:rgba(109,181,155,.05);transition:border-color .18s;text-align:left;color:inherit;font:inherit}
+.emp-card:hover,.emp-card.sel{border-color:var(--verdigris)}
+.ec-name{font-family:var(--f-disp);font-weight:500;font-size:1rem}
+.ec-who{font-family:var(--f-mono);font-size:.62rem;color:var(--muted)}
+
+/* system */
+.sys-grid{display:grid;grid-template-columns:1fr;gap:1.6rem}
+@media(min-width:820px){.sys-grid{grid-template-columns:minmax(0,340px) 1fr}}
+.cof-cap,.ladder-cap{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--verdigris);margin-bottom:.7rem}
+#cof{display:block;width:100%;max-width:340px;margin:0 auto}
+.cof-g path{fill:var(--lacquer2);stroke:var(--line-lit);stroke-width:1;cursor:pointer;transition:fill .18s}
+.cof-g:hover path{fill:var(--verd-deep)}
+.cof-g.sel path{fill:var(--verdigris)}
+.cof-txt{font-family:var(--f-disp);font-weight:500;font-size:15px;fill:var(--ivory);pointer-events:none}
+.cof-min{font-family:var(--f-mono);font-size:8px;fill:var(--muted);pointer-events:none}
+.cof-g.sel .cof-txt,.cof-g.sel .cof-min{fill:var(--ebony)}
+.cof-center{font-family:var(--f-mono);font-size:9px;letter-spacing:.2em;fill:var(--faint);text-transform:uppercase}
+.cof-readout{margin-top:.9rem;border:1px solid var(--line-lit);border-radius:8px;padding:.9rem;background:var(--lacquer);min-height:96px}
+.cof-key{font-family:var(--f-disp);font-weight:500;font-size:1.45rem}
+.cof-sig{font-family:var(--f-mono);font-size:.78rem;color:var(--verdigris);margin:.2rem 0}
+.cof-rel{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);line-height:1.5}
+.rung{border:1px solid var(--line);border-left:3px solid var(--verd-deep);border-radius:8px;margin-bottom:.55rem;overflow:hidden;transition:border-color .2s}
+.rung.open{border-left-color:var(--verdigris)}
+.rung-head{display:flex;align-items:center;gap:.8rem;width:100%;text-align:left;background:none;border:none;color:inherit;font:inherit;cursor:pointer;padding:.85rem 1rem}
+.rung-head:hover{background:var(--lacquer)}
+.rung-n{font-family:var(--f-mono);font-size:.7rem;color:var(--verdigris)}
+.rung-t{font-family:var(--f-disp);font-weight:500;font-size:1.06rem;flex:1}
+.rung-caret{font-family:var(--f-mono);color:var(--muted);transition:transform .2s}
+.rung.open .rung-caret{transform:rotate(90deg)}
+.rung-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.rung-inner{padding:.2rem 1rem 1rem 3.2rem}
+.rung-inner p{color:var(--ivory-dim);font-size:.93rem;margin-bottom:.8rem}
+.mini-kbd{margin:.3rem 0 .6rem;display:block}
+
+/* flags */
+.flags-intro{border-left:2px solid var(--crimson);padding-left:1rem;max-width:60ch;color:var(--ivory-dim);margin-bottom:1.8rem}
+.flags-intro b{color:var(--crimson)}
+.flag-group{margin-bottom:1.6rem}
+.fg-head{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:.5rem;margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem}
+.fg-head i{width:9px;height:9px;border-radius:50%}
+.flag-item{display:flex;gap:.9rem;align-items:flex-start;padding:.85rem 1rem;background:var(--lacquer);border:1px solid var(--line);border-radius:8px;margin-bottom:.5rem}
+.fi-body{flex:1}
+.fi-label{font-family:var(--f-disp);font-weight:500;font-size:1.04rem}
+.fi-why{color:var(--muted);font-family:var(--f-mono);font-size:.7rem;margin-top:.2rem}
+.fi-remove{font-family:var(--f-mono);font-size:.95rem;background:none;border:1px solid var(--line-lit);color:var(--muted);border-radius:5px;width:28px;height:28px;flex:0 0 auto;cursor:pointer;line-height:1}
+.fi-remove:hover{border-color:var(--crimson);color:var(--crimson)}
+.flags-empty{text-align:center;padding:4rem 1rem;color:var(--muted)}
+.fe-mark{font-size:2.2rem;color:var(--crimson-deep)}
+.flags-empty p{max-width:40ch;margin:1rem auto 0;font-size:.94rem}
+
+footer{max-width:1220px;margin:0 auto;padding:2rem clamp(1rem,4vw,2.4rem) 4rem;border-top:1px solid var(--line);color:var(--faint);font-family:var(--f-mono);font-size:.64rem;line-height:1.8}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="atlas-header">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true"></div>
+    <div class="brand-txt">Explorable Atlas<b>The Piano, Mapped</b></div>
+  </div>
+  <nav class="nav" id="nav" aria-label="Territories">
+    <button class="nav-btn active" data-view="overview">Overview</button>
+    <button class="nav-btn" data-view="instrument">I &middot; Instrument</button>
+    <button class="nav-btn" data-view="bloodlines">II &middot; Bloodlines</button>
+    <button class="nav-btn" data-view="hands">III &middot; Hands</button>
+    <button class="nav-btn" data-view="system">IV &middot; System</button>
+  </nav>
+  <button class="flag-count" id="flagCount" aria-label="View planted flags">
+    <span class="fc-flag" aria-hidden="true">&#9873;</span><span class="fc-num" id="fcNum">0</span>&nbsp;flags
+  </button>
+</header>
+
+<main>
+
+<section class="view active" id="view-overview">
+  <div class="hero">
+    <span class="eyebrow tint-instrument">An explorable atlas &middot; not a syllabus</span>
+    <h1 class="hero-title">The&nbsp;piano,<br><em>mapped.</em></h1>
+    <p class="hero-sub">Four territories of one instrument: how the machine was built, who taught whom, how to move your hands, and why twelve notes do what they do.</p>
+    <svg class="keys" viewBox="0 0 560 64" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <p class="thesis">Wander it. When something pulls at you &mdash; a technique, a lineage, a corner of theory &mdash; <b>plant a flag</b>. The flags become the shortlist you carry back to your teacher: <em>this is where I want to stand.</em></p>
+  </div>
+  <div class="territory-grid" id="territoryGrid"></div>
+</section>
+
+<section class="view" id="view-instrument">
+  <div class="section-head">
+    <span class="eyebrow tint-instrument">Territory I &middot; The machine under your hands</span>
+    <h2 class="section-title">The Instrument</h2>
+    <p class="section-intro">Three centuries of engineering, and the divergences live literally in the metal. Tap any node to open it.</p>
+  </div>
+  <div class="split has-side">
+    <div class="timeline" id="timeline"></div>
+    <aside class="inspector" id="insp-instrument"><p class="insp-empty">Tap a milestone &mdash; who, what, and what it made possible.</p></aside>
+  </div>
+</section>
+
+<section class="view" id="view-bloodlines">
+  <div class="section-head">
+    <span class="eyebrow tint-bloodlines">Territory II &middot; Who taught whom</span>
+    <h2 class="section-title">The Bloodlines</h2>
+    <p class="section-intro">The pedagogical family tree, flowing left&rarr;right through time. Tap any pianist to light their whole lineage &mdash; teachers behind, students ahead.</p>
+  </div>
+  <div class="graph-tools">
+    <div class="legend" id="legend"></div>
+    <button class="graph-reset" id="graphReset">Reset view</button>
+    <span class="graph-hint">dashed = influence, not lessons &nbsp;&middot;&nbsp; ringed &#9678; = two schools converge &nbsp;&middot;&nbsp; drag sideways to explore</span>
+  </div>
+  <div class="split has-side">
+    <div class="graph-scroll">
+      <svg id="genealogy" viewBox="0 0 1120 720" role="img" aria-label="Piano teaching genealogy graph"></svg>
+    </div>
+    <aside class="inspector" id="insp-bloodlines"><p class="insp-empty">Tap a name to trace their lineage and read who they were.</p></aside>
+  </div>
+</section>
+
+<section class="view" id="view-hands">
+  <div class="section-head">
+    <span class="eyebrow tint-hands">Territory III &middot; The 150-year argument</span>
+    <h2 class="section-title">The Hands</h2>
+    <p class="section-intro">One long fight about how the body should move &mdash; fingers alone, or the weight of the whole arm. The punchline: the weight school kept insisting the great players had always played their way. Tap a figure.</p>
+  </div>
+  <div class="split has-side">
+    <div>
+      <div class="spectrum-wrap">
+        <div class="poles">
+          <span>Finger / digital<span class="p-sub">isolated strong fingers, quiet hand</span></span>
+          <span class="right">Weight / arm<span class="p-sub">arm-weight, relaxation, singing tone</span></span>
+        </div>
+        <div class="axis" id="axis"><div class="axis-line"></div></div>
+      </div>
+      <div class="empirical">
+        <div class="emp-label">&mdash; then the empirical turn: someone measured the argument &mdash;</div>
+        <div class="emp-row" id="empRow"></div>
+      </div>
+    </div>
+    <aside class="inspector" id="insp-hands"><p class="insp-empty">Tap a figure on the spectrum to read their claim &mdash; and where it broke down.</p></aside>
+  </div>
+</section>
+
+<section class="view" id="view-system">
+  <div class="section-head">
+    <span class="eyebrow tint-system">Territory IV &middot; Why twelve notes</span>
+    <h2 class="section-title">The System</h2>
+    <p class="section-intro">Music theory from the physics up. Play with the circle of fifths, then climb the ladder of first principles &mdash; each rung a why, not just a rule.</p>
+  </div>
+  <div class="sys-grid">
+    <div>
+      <div class="cof-cap">The circle of fifths &middot; tap a key</div>
+      <svg id="cof" viewBox="0 0 300 300" role="img" aria-label="Interactive circle of fifths"></svg>
+      <div class="cof-readout" id="cofReadout"><div class="cof-key" style="color:var(--muted);font-family:var(--f-mono);font-size:.85rem">Tap a wedge &rarr;</div></div>
+    </div>
+    <div>
+      <div class="ladder-cap">First principles, ground up</div>
+      <div id="ladder"></div>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="view-flags">
+  <div class="section-head">
+    <span class="eyebrow tint-bloodlines">Your shortlist</span>
+    <h2 class="section-title">Flags Planted</h2>
+  </div>
+  <p class="flags-intro">This is the point of the whole map. Your teacher handed you the wheel &mdash; these are the directions you are weighing. <b>Screenshot or jot them down</b> and bring them to your next lesson. (Flags live for this session only; the map resets on reload.)</p>
+  <div id="flagsBody"></div>
+</section>
+
+</main>
+
+<footer>
+  METHOD &mdash; headwaters traced, tributaries followed, originators named as people, convergences &amp; divergences logged, criticisms kept, terminus: a direction to bring to your teacher.<br>
+  KEY SOURCES &mdash; Smithsonian (William Steinway Diary annotations) on the Babcock/Chickering/Steinway iron-frame priority; Adelson, <i>Erard: A Passion for the Piano</i> (OUP 2021) on the 1821 double escapement; piano-pedagogy literature (Gerig; UMD &amp; U.&nbsp;Pretoria dissertations) on Deppe/Matthay/Breithaupt/Ortmann/Kochevitsky. Dates simplified where honest historians still argue.
+</footer>
+<script>
+/* ================= DATA ================= */
+const TERRITORIES=[
+ {v:"instrument",num:"I / INSTRUMENT",name:"The Instrument",tag:"How the machine came to exist \u2014 dulcimer to Cristofori to Steinway, forks and all.",form:"Form \u2014 a branching timeline",color:"var(--brass)"},
+ {v:"bloodlines",num:"II / BLOODLINES",name:"The Bloodlines",tag:"Who taught whom, Beethoven to Richter. The literal family tree.",form:"Form \u2014 a clickable genealogy graph",color:"var(--crimson)"},
+ {v:"hands",num:"III / HANDS",name:"The Hands",tag:"The long argument about how to move \u2014 fingers vs. the whole arm.",form:"Form \u2014 a spectrum with two poles",color:"var(--bone)"},
+ {v:"system",num:"IV / SYSTEM",name:"The System",tag:"Why twelve notes, and what they do. Theory from the physics up.",form:"Form \u2014 interactive theory toys",color:"var(--verdigris)"}
+];
+
+const TL=[
+ {id:"i-dulcimer",yr:"~1400s",name:"Hammered dulcimer",who:"the precursor",
+  body:"Strings struck with little hammers instead of plucked. Not a keyboard yet \u2014 but the mechanical seed the piano grew from.",
+  why:"The struck-string idea itself"},
+ {id:"i-cristofori",yr:"1700",name:"The pianoforte",who:"Bartolomeo Cristofori \u00b7 Florence",
+  body:"A harpsichord maker at the Medici court solves the great limitation of his era: a hammer that strikes the string and instantly rebounds, so the force of your touch controls the volume. He called it gravicembalo col piano e forte \u2014 \u2018harpsichord soft-and-loud.\u2019 That phrase is where the name comes from.",
+  why:"Cristofori\u2019s escapement \u2014 the founding idea"},
+ {id:"i-silbermann",yr:"1710s\u201340s",name:"German diffusion",who:"Gottfried Silbermann & J.S. Bach",
+  body:"Cristofori\u2019s idea travels north. Bach tries an early Silbermann and grumbles \u2014 heavy touch, weak treble \u2014 but approves the improved later models. The old keyboard masters begin adapting harpsichord hands to an instrument that answers to how you press.",
+  crit:"Early pianos were clumsy beside the refined harpsichord; adoption was slow and skeptical.",
+  why:"How harpsichordists became pianists"},
+ {fork:true,label:"the great fork \u2014 two national actions diverge",
+  left:{id:"i-vienna",tag:"Viennese action",name:"Light & shallow",who:"Stein \u00b7 Walter",
+   body:"Feather-light, instantly responsive. Crystalline clarity and rapid articulation \u2014 the exact feel Mozart\u2019s music assumes under the fingers.",
+   why:"The Viennese touch (Mozart\u2019s world)"},
+  right:{id:"i-english",tag:"English action",name:"Heavy & powerful",who:"Backers \u00b7 Broadwood \u00b7 Stodart",
+   body:"Deeper, heavier, far more powerful. Beethoven wanted exactly this \u2014 and could famously wreck the instruments anyway, snapping strings in pursuit of more.",
+   why:"The English touch (Beethoven\u2019s power)"}},
+ {id:"i-erard",yr:"1821",name:"Double-escapement action",who:"S\u00e9bastien \u00c9rard \u00b7 Paris / London",
+  body:"A \u2018repetition lever\u2019 lets a note sound again before the key has fully returned. This is the birth of the modern grand action \u2014 itself a blend of the English and Viennese schools \u2014 and the mechanical precondition for real virtuosity. A concert grand can trill where an upright cannot because of this lever.",
+  why:"\u00c9rard\u2019s repetition action"},
+ {id:"i-frame",yr:"1825",name:"One-piece cast-iron frame",who:"Alpheus Babcock \u00b7 Boston",
+  body:"A single iron casting holds far higher string tension than wood ever could \u2014 louder, more stable in tune, and steel strings now become possible. Babcock, a music teacher\u2019s son, was a better builder than businessman; he later worked for Chickering, who perfected the design.",
+  crit:"Steinway is popularly miscredited with \u2018inventing the iron frame.\u2019 Babcock came first (1825), Chickering refined it \u2014 Steinway\u2019s actual landmark was overstringing in 1859. A tidy attribution myth worth untangling.",
+  why:"The iron frame & its attribution fight"},
+ {id:"i-steinway",yr:"1859",name:"Overstringing + full plate",who:"Steinway & Sons \u00b7 New York",
+  body:"Bass strings fanned diagonally over the treble on a full iron plate: longer strings in the same case, a better spot on the soundboard, and the big, singing, powerful modern tone. As one account put it, no latter-day Liszt could smash it.",
+  crit:"Viennese makers resisted for decades, insisting overstringing muddied the tone \u2014 and straight-strung B\u00f6sendorfers do sound different. The argument was never fully settled, just outvoted.",
+  why:"The modern (Steinway) sound"},
+ {id:"i-88",yr:"~1880s",name:"The 88-key standard",who:"the compass settles",
+  body:"Composers kept demanding range; the keyboard grows from Cristofori\u2019s four octaves and finally settles at 88 keys \u2014 about 7\u00bc octaves. (B\u00f6sendorfer\u2019s Imperial still cheekily adds extra bass notes.)",
+  why:"Why the keyboard is the size it is"},
+ {id:"i-digital",yr:"1980s\u2192",name:"Digital & hybrid",who:"the fork continues",
+  body:"Sampling and physical modeling put a concert grand inside a laptop; hybrids marry a real acoustic action to digital sound. The instrument never stopped forking.",
+  crit:"An old debate returns in new clothes: can a modeled tone ever be the \u2018real\u2019 thing? The same fight the Viennese makers had about overstringing.",
+  why:"Digital modeling of the instrument"}
+];
+
+const SCHOOLS={
+ vienna:{name:"Vienna \u2192 Liszt line",color:"#C8A44D"},
+ leschetizky:{name:"Leschetizky line",color:"#C94E5A"},
+ chopin:{name:"Chopin / French",color:"#CBAF80"},
+ russian:{name:"Russian school",color:"#6DB59B"}
+};
+const NODES=[
+ {id:"clementi",name:"Clementi",yr:1752,sc:"vienna",x:80,y:90,body:"Often called the father of piano technique: virtuoso, composer, publisher, and piano manufacturer. His Gradus ad Parnassum codified an idiomatic piano approach distinct from harpsichord habits. Famous improvised \u2018duel\u2019 with Mozart, 1781.",crit:"Mozart sniffed that he was a mere mechanicus \u2014 all fingers, no soul. The jab stuck, unfairly.",why:"Clementi\u2019s studies (Gradus ad Parnassum)"},
+ {id:"mozart",name:"Mozart",yr:1756,sc:"vienna",x:105,y:155,body:"Classical clarity itself. Not a \u2018pedagogue,\u2019 but his pupil Hummel carried the crystalline, pearled touch into the next century.",why:"The Classical touch"},
+ {id:"beethoven",name:"Beethoven",yr:1770,sc:"vienna",x:185,y:95,body:"Bridged Classical and Romantic and demanded a power the instruments of his day could barely survive. Crucially for this tree: he taught the young Carl Czerny.",why:"Beethoven\u2019s pianism"},
+ {id:"hummel",name:"Hummel",yr:1778,sc:"vienna",x:215,y:165,body:"Lived in Mozart\u2019s house as a boy. His clear, ornamented, \u2018pearled\u2019 style rivalled the Beethoven camp and shaped how Czerny thought about fluency.",why:"The pearled, ornamented style"},
+ {id:"czerny",name:"Czerny",yr:1791,sc:"vienna",x:315,y:120,body:"The hinge of the whole tree: Beethoven\u2019s pupil, Liszt\u2019s and Leschetizky\u2019s teacher. His mountain of etudes still drills every student alive.",crit:"Those etudes are loved and cursed in equal measure for their relentless mechanical grind.",why:"Czerny\u2019s etudes (the studies everyone does)"},
+ {id:"liszt",name:"Liszt",yr:1811,sc:"vienna",x:440,y:88,body:"Czerny\u2019s pupil and the great node of the 19th century. He essentially invented the solo recital, the memorized public performance, and the virtuoso as showman-hero. His students fanned across Europe.",crit:"The tidy \u2018Beethoven\u2192Czerny\u2192Liszt torch-passing\u2019 was partly a story its participants liked to tell. Real lessons, mythologized succession.",why:"The Liszt tradition \u2014 recital & virtuosity"},
+ {id:"tausig",name:"Tausig",yr:1841,sc:"vienna",x:575,y:58,body:"Liszt\u2019s most gifted pupil \u2014 dead at 29, remembered as a legend of flawless, effortless technique.",why:"Explore Tausig\u2019s playing"},
+ {id:"vonbulow",name:"von B\u00fclow",yr:1830,sc:"vienna",x:565,y:120,body:"Pupil (and son-in-law) of Liszt; prototype of the modern interpreter obsessed with the composer\u2019s intentions rather than the performer\u2019s display.",why:"Interpretive fidelity to the score"},
+ {id:"rosenthal",name:"Rosenthal",yr:1862,sc:"vienna",x:672,y:80,body:"The \u2018little giant of the piano\u2019 \u2014 dazzling Lisztian technique wedded to old-world Viennese taste. His recordings survive.",why:"Explore Rosenthal\u2019s recordings"},
+ {id:"leschetizky",name:"Leschetizky",yr:1830,sc:"leschetizky",x:480,y:265,body:"Another Czerny pupil who became one of the dominant pedagogical bloodlines in history \u2014 teaching dozens of the most famous names of the next generation from his Vienna studio.",why:"The Leschetizky method"},
+ {id:"yesipova",name:"Yesipova",yr:1851,sc:"leschetizky",x:615,y:228,body:"Leschetizky\u2019s pupil and wife, and a major teacher in her own right at St. Petersburg. Her most famous student: Prokofiev.",why:"Yesipova\u2019s teaching line"},
+ {id:"paderewski",name:"Paderewski",yr:1860,sc:"leschetizky",x:645,y:290,body:"Leschetizky\u2019s pupil turned global superstar \u2014 and, improbably, later Prime Minister of Poland. The most famous pianist of his age.",why:"Explore Paderewski\u2019s legacy"},
+ {id:"friedman",name:"Friedman",yr:1882,sc:"leschetizky",x:745,y:250,body:"A Leschetizky standout famed for rhythmic life, rubato, and singing tone \u2014 especially in Chopin.",why:"Rhythm & rubato in Chopin"},
+ {id:"schnabel",name:"Schnabel",yr:1882,sc:"leschetizky",x:750,y:315,body:"The cerebral one. Reshaped how we hear Beethoven and Schubert; said he was drawn to music \u2018better than it can be performed.\u2019",why:"Interpretive depth (Beethoven / Schubert)"},
+ {id:"prokofiev",name:"Prokofiev",yr:1891,sc:"leschetizky",x:850,y:235,body:"Trained in the Leschetizky line through Yesipova. Percussive, motoric, steel-fingered modernism \u2014 the piano as a rhythm machine.",why:"Percussive, motoric playing"},
+ {id:"field",name:"Field",yr:1782,sc:"chopin",x:215,y:395,body:"Irish pupil of Clementi who invented the nocturne \u2014 the dreamy, singing-tone idiom Chopin would inherit and perfect.",why:"The nocturne & singing tone"},
+ {id:"chopin",name:"Chopin",yr:1810,sc:"chopin",x:405,y:405,body:"Built a technique on suppleness, the hand\u2019s natural shape, and a legato imitating the human voice and Italian opera \u2014 a whole philosophy apart from the finger-drillers. Frail health; taught intimately; left few public pupils.",why:"Chopin\u2019s supple, singing technique"},
+ {id:"mikuli",name:"Mikuli",yr:1819,sc:"chopin",x:555,y:420,body:"A direct Chopin pupil who preserved and edited his teacher\u2019s playing and scores \u2014 a main channel through which Chopin\u2019s own approach survives.",why:"Chopin\u2019s method, preserved"},
+ {id:"arubinstein",name:"A. Rubinstein",yr:1829,sc:"russian",x:470,y:505,body:"Founded the St. Petersburg Conservatory in 1862; a colossal, thunderous virtuoso. His most famous private pupil: Josef Hofmann.",why:"The Russian conservatory tradition"},
+ {id:"nrubinstein",name:"N. Rubinstein",yr:1835,sc:"russian",x:505,y:565,body:"Anton\u2019s brother; founded the Moscow Conservatory in 1866 and taught Siloti \u2014 seeding the Moscow line that runs to Rachmaninoff and beyond.",why:"The Moscow line"},
+ {id:"zverev",name:"Zverev",yr:1832,sc:"russian",x:520,y:640,body:"A fearsome Moscow teacher of children who boarded the young Rachmaninoff and Scriabin under his own roof and forbade distraction.",why:"Early foundational training"},
+ {id:"siloti",name:"Siloti",yr:1863,sc:"russian",conv:true,x:655,y:560,body:"A rare convergence: trained by BOTH Liszt and Nikolai Rubinstein \u2014 the Austro-German and Russian lines meeting in one pair of hands \u2014 who then taught his younger cousin, Rachmaninoff.",why:"Siloti as a bridge between schools"},
+ {id:"hofmann",name:"Hofmann",yr:1876,sc:"russian",x:705,y:500,body:"Anton Rubinstein\u2019s prize pupil and a supreme technician \u2014 also a working inventor with patents to his name, including automobile shock absorbers.",why:"Explore Hofmann\u2019s recordings"},
+ {id:"godowsky",name:"Godowsky",yr:1870,sc:"russian",x:690,y:678,body:"A largely self-taught giant of relaxed, hyper-contrapuntal playing \u2014 \u2018I let my arms hang down with their own weight.\u2019 A living link to the weight-technique ideas in the Hands territory.",why:"Relaxed, contrapuntal technique"},
+ {id:"rachmaninoff",name:"Rachmaninoff",yr:1873,sc:"russian",conv:true,x:790,y:595,body:"The second convergence node: child-drilled by Zverev, then taught by his cousin Siloti (who carried both Liszt and Rubinstein). The last of the great Romantic pianist-composers.",why:"Late-Romantic pianism & big voicing"},
+ {id:"scriabin",name:"Scriabin",yr:1872,sc:"russian",x:770,y:660,body:"Zverev\u2019s other prodigy, alongside Rachmaninoff. Turned the piano toward mysticism, dense harmony, and a private chromatic language.",why:"Scriabin\u2019s harmony & sound-world"},
+ {id:"neuhaus",name:"Neuhaus",yr:1888,sc:"russian",x:880,y:635,body:"The great Soviet pedagogue whose Moscow studio produced the century\u2019s giants. His book The Art of Piano Playing puts tone, imagination, and meaning ahead of mechanical drill.",why:"Neuhaus\u2019s philosophy (tone over drill)"},
+ {id:"richter",name:"Richter",yr:1915,sc:"russian",x:985,y:565,body:"Neuhaus\u2019s pupil; a titan of vast, fearless repertoire and self-effacing intensity \u2014 the music, never the ego.",why:"Explore Richter\u2019s interpretations"},
+ {id:"gilels",name:"Gilels",yr:1916,sc:"russian",x:990,y:640,body:"Neuhaus-trained; a huge, burnished, golden tone matched to steely control. The other Soviet colossus beside Richter.",why:"Explore Gilels\u2019s tone"},
+ {id:"lupu",name:"Lupu",yr:1945,sc:"russian",x:1065,y:600,body:"Studied in the Neuhaus lineage in Moscow; famed for inward, luminous poetry and an almost whispered control of colour.",why:"Inward, poetic playing"}
+];
+const EDGES=[
+ ["mozart","hummel","teach"],["clementi","hummel","dash"],
+ ["beethoven","czerny","teach"],["hummel","czerny","dash"],
+ ["czerny","liszt","teach"],["czerny","leschetizky","teach"],
+ ["clementi","field","teach"],["field","chopin","dash"],["chopin","mikuli","teach"],
+ ["liszt","tausig","teach"],["liszt","vonbulow","teach"],["liszt","rosenthal","teach"],["liszt","siloti","teach"],
+ ["leschetizky","yesipova","teach"],["leschetizky","paderewski","teach"],["leschetizky","friedman","teach"],["leschetizky","schnabel","teach"],
+ ["yesipova","prokofiev","teach"],
+ ["arubinstein","hofmann","teach"],["nrubinstein","siloti","teach"],
+ ["zverev","rachmaninoff","teach"],["zverev","scriabin","teach"],["siloti","rachmaninoff","teach"],
+ ["godowsky","neuhaus","teach"],
+ ["neuhaus","richter","teach"],["neuhaus","gilels","teach"],["neuhaus","lupu","teach"]
+];
+
+const FIGS=[
+ {id:"h-baroque",name:"Bach \u00b7 Couperin \u00b7 Rameau",yr:"1685\u20131764",camp:"finger",x:7,pos:"up",
+  body:"Harpsichord technique: the fingers do everything, the hand stays quiet \u2014 a plucked instrument gives no reward for arm force. This inherited default is what the piano spent a century arguing with.",
+  why:"The harpsichord-rooted finger tradition"},
+ {id:"h-hanon",name:"Hanon",yr:"1819\u20131900",camp:"finger",x:17,pos:"dn",
+  body:"The Virtuoso Pianist (1873): sixty exercises promising mastery through sheer mechanical repetition. The monument \u2014 and the punching bag \u2014 of the finger school.",
+  crit:"Modern teachers warn that pure Hanon drilling risks strain and trains the hand as a machine rather than a musician.",
+  why:"Finger-strength drills (the Hanon question)"},
+ {id:"h-czerny",name:"Clementi / Czerny",yr:"1752\u20131857",camp:"finger",x:29,pos:"up",
+  body:"The 19th-century drill proper: high, strong, independent fingers hammered into place by endless studies. It built real facility \u2014 and real tension.",
+  why:"Finger-independence studies (Czerny)"},
+ {id:"h-chopin",name:"Chopin",yr:"1810\u20131849",camp:"third",x:46,pos:"dn",
+  body:"A third way, decades early. A supple hand in its natural shape, weight flowing into a singing legato, fingerings chosen for ease rather than symmetry. He sidestepped the whole finger-vs-arm fight by starting from comfort.",
+  why:"Chopin\u2019s suppleness & singing legato"},
+ {id:"h-matthay",name:"Matthay",yr:"1858\u20131945",camp:"weight",x:62,pos:"dn",
+  body:"The English school. The Act of Touch (1903): arm-weight plus relaxation for a singing tone \u2014 but he never abandoned the fingers, insisting they still act independently of arm force. The balanced wing of the weight school.",
+  why:"Weight + relaxation for tone (Matthay)"},
+ {id:"h-deppe",name:"Deppe",yr:"1828\u20131890",camp:"weight",x:71,pos:"up",
+  body:"The early weight theorist: play from arm weight and free fall, stop lifting the fingers high, let the arm produce a singing tone. The reaction against pure drill begins here.",
+  why:"Arm-weight & free fall (Deppe)"},
+ {id:"h-breithaupt",name:"Breithaupt",yr:"1873\u20131945",camp:"weight",x:90,pos:"dn",
+  body:"Natural Piano-Technic (1905): \u2018Don\u2019t think about your fingers.\u2019 The most extreme statement of full-arm weight and total relaxation \u2014 a sensation in its day, five editions in sixteen years. His defense: the great pianists had always played this way; only the theory was new.",
+  crit:"Criticized from all sides \u2014 even by Matthay \u2014 for making arm weight the ONLY element and dismissing finger action almost entirely. The pendulum overswung.",
+  why:"Full-arm weight technique (Breithaupt)"}
+];
+const EMPIRICAL=[
+ {id:"h-ortmann",name:"Ortmann",who:"1889\u20131979 \u00b7 measured it",
+  body:"The scientist. In the 1920s\u201330s Otto Ortmann actually measured piano technique \u2014 levers, forces, physiology \u2014 and found both camps half-right. Technique as applied mechanics, not dogma. His work quietly ended the shouting match.",
+  why:"The physiology of technique (Ortmann)"},
+ {id:"h-kochevitsky",name:"Kochevitsky",who:"1903\u20131993 \u00b7 the nervous system",
+  body:"The Art of Piano Playing (1967): the real controller isn\u2019t the muscle, it\u2019s the central nervous system. The question shifts from \u2018how to move\u2019 to \u2018how the brain learns movement\u2019 \u2014 the modern motor-learning synthesis you\u2019re actually taught from today.",
+  why:"Motor learning \u2014 how the brain trains movement"}
+];
+
+const COF=[
+ {maj:"C",min:"Am",sig:"no sharps or flats"},
+ {maj:"G",min:"Em",sig:"1\u266f \u2014 F\u266f"},
+ {maj:"D",min:"Bm",sig:"2\u266f \u2014 F\u266f C\u266f"},
+ {maj:"A",min:"F\u266fm",sig:"3\u266f \u2014 F\u266f C\u266f G\u266f"},
+ {maj:"E",min:"C\u266fm",sig:"4\u266f \u2014 F\u266f C\u266f G\u266f D\u266f"},
+ {maj:"B",min:"G\u266fm",sig:"5\u266f \u2014 add A\u266f"},
+ {maj:"G\u266d",min:"E\u266dm",sig:"6\u266d (= F\u266f, 6\u266f) \u2014 the seam"},
+ {maj:"D\u266d",min:"B\u266dm",sig:"5\u266d \u2014 B\u266d E\u266d A\u266d D\u266d G\u266d"},
+ {maj:"A\u266d",min:"Fm",sig:"4\u266d \u2014 B\u266d E\u266d A\u266d D\u266d"},
+ {maj:"E\u266d",min:"Cm",sig:"3\u266d \u2014 B\u266d E\u266d A\u266d"},
+ {maj:"B\u266d",min:"Gm",sig:"2\u266d \u2014 B\u266d E\u266d"},
+ {maj:"F",min:"Dm",sig:"1\u266d \u2014 B\u266d"}
+];
+
+const LADDER=[
+ {t:"The harmonic series",kbd:false,
+  body:"Pluck one string and it doesn\u2019t vibrate only as a whole \u2014 it also vibrates in halves, thirds, quarters, all at once, sounding faint higher tones. An octave is the 2:1 overtone; a fifth is 3:2. That is why they sound consonant. The physics of a vibrating string is the seed of all harmony.",
+  why:"Ear-train the overtone series"},
+ {t:"Twelve notes & equal temperament",kbd:false,
+  body:"The catch: stack pure 3:2 fifths and you never land exactly back on an octave (the \u2018Pythagorean comma\u2019). Equal temperament is the compromise \u2014 slice the octave into twelve identical semitones, so every interval is very slightly out of tune but every key is equally playable. That compromise is what made the modern keyboard, and the circle to the left, possible.",
+  why:"Understand temperament (the great compromise)"},
+ {t:"The keyboard\u2019s geometry",kbd:true,
+  body:"The black keys cluster in twos and threes so your hand can navigate twelve notes by touch alone. It\u2019s a map: the white key just left of any two-black-key group is always C. Learn that one landmark and you\u2019re never lost.",
+  why:"Keyboard geography by feel"},
+ {t:"Intervals",kbd:false,
+  body:"The distance between two notes, counted in semitones. Thirds (major = 4, minor = 3) are the DNA of chords; the perfect fifth (7) is the anchor; the octave (12) is home again. Almost everything is built by stacking these.",
+  why:"Interval recognition by ear"},
+ {t:"Triads & sevenths",kbd:false,
+  body:"Stack two thirds and you get a triad \u2014 major, minor, diminished, or augmented depending on which thirds. Add one more and you get a seventh chord (maj7, min7, dominant 7). This is exactly the chord vocabulary you built your chord-viewer tool around \u2014 this rung extends that toy.",
+  why:"Chord construction (extend your chord viewer)"},
+ {t:"Scales & keys",kbd:false,
+  body:"Choose seven of the twelve notes in a fixed pattern of whole- and half-steps and you\u2019ve defined a key. The circle of fifths is the map of how all the keys relate \u2014 neighbours share six of their seven notes.",
+  why:"Scales & key relationships"},
+ {t:"Functional harmony",kbd:false,
+  body:"Chords take on roles inside a key: tonic (home \u2014 I), subdominant (departure \u2014 IV), dominant (tension \u2014 V). The pull of V back to I is the engine of Western music. Tension and release \u2014 that\u2019s the whole game, from a nursery rhyme to a symphony.",
+  why:"Functional harmony \u2014 I / IV / V and cadences"}
+];
+</script>
+<script>
+/* ================= STATE & FLAGS ================= */
+let currentView="overview";
+const flags=new Map();
+const FLAG_DEFS={};
+const T_LABEL={instrument:"I \u00b7 The Instrument",bloodlines:"II \u00b7 The Bloodlines",hands:"III \u00b7 The Hands",system:"IV \u00b7 The System"};
+const T_COLOR={instrument:"var(--brass)",bloodlines:"var(--crimson)",hands:"var(--bone)",system:"var(--verdigris)"};
+
+function reg(id,terr,label,sub){FLAG_DEFS[id]={terr,label,sub};}
+function toggleFlag(id){
+  const d=FLAG_DEFS[id]; if(!d)return;
+  if(flags.has(id))flags.delete(id); else flags.set(id,d);
+  updateFlagUI();
+}
+function flagBtnHTML(id){
+  const on=flags.has(id);
+  return '<button class="flag-btn '+(on?'on':'')+'" data-fid="'+id+'"><span class="pin" aria-hidden="true">\u2691</span><span class="fl-txt">'+(on?'Flag planted':'Plant a flag')+'</span></button>';
+}
+function updateFlagUI(){
+  document.getElementById("fcNum").textContent=flags.size;
+  document.querySelectorAll(".flag-btn").forEach(function(b){
+    const on=flags.has(b.dataset.fid);
+    b.classList.toggle("on",on);
+    const t=b.querySelector(".fl-txt"); if(t)t.textContent=on?"Flag planted":"Plant a flag";
+  });
+  if(currentView==="flags")renderFlags();
+}
+document.addEventListener("click",function(e){
+  const b=e.target.closest(".flag-btn"); if(b)toggleFlag(b.dataset.fid);
+});
+
+/* ================= NAV ================= */
+function show(v){
+  currentView=v;
+  document.querySelectorAll(".view").forEach(function(x){x.classList.remove("active");});
+  document.getElementById("view-"+v).classList.add("active");
+  document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.toggle("active",b.dataset.view===v);});
+  if(v==="flags")renderFlags();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".nav-btn").forEach(function(b){b.addEventListener("click",function(){show(b.dataset.view);});});
+document.getElementById("flagCount").addEventListener("click",function(){show("flags");});
+
+/* ================= INSPECTOR ================= */
+function inspect(view,o){
+  const el=document.getElementById("insp-"+view);
+  let h='<div class="insp-eyebrow" style="color:'+o.color+'">'+o.eyebrow+'</div>'
+   +'<div class="insp-title">'+o.title+'</div>'
+   +(o.meta?'<div class="insp-meta">'+o.meta+'</div>':'')
+   +'<div class="insp-body">'+o.body+'</div>'
+   +(o.crit?'<div class="insp-crit"><b>the tension</b>'+o.crit+'</div>':'')
+   +(o.fid?flagBtnHTML(o.fid):'');
+  el.innerHTML=h;
+}
+
+/* ================= OVERVIEW ================= */
+function renderKeys(){
+  const svg=document.querySelector(".keys"); const W=560,H=64,n=17,w=W/n;
+  let s="";
+  for(let i=0;i<n;i++)s+='<rect x="'+(i*w)+'" y="0" width="'+(w-1)+'" height="'+H+'" fill="#ECE3D2" opacity="0.92"/>';
+  const pat=[1,1,0,1,1,1,0];
+  for(let i=0;i<n-1;i++)if(pat[i%7])s+='<rect x="'+(i*w+w*0.62)+'" y="0" width="'+(w*0.72)+'" height="'+(H*0.62)+'" fill="#0b0807"/>';
+  s+='<rect x="0" y="0" width="'+W+'" height="2.5" fill="#C94E5A"/>';
+  svg.innerHTML=s;
+}
+function renderTerritories(){
+  const g=document.getElementById("territoryGrid");
+  g.innerHTML=TERRITORIES.map(function(t){
+    return '<button class="tc" style="--tc:'+t.color+'" data-goto="'+t.v+'">'
+     +'<div class="tc-num">'+t.num+'</div><div class="tc-name">'+t.name+'</div>'
+     +'<div class="tc-tag">'+t.tag+'</div><div class="tc-enter">Enter \u25b8</div>'
+     +'<div class="tc-form">'+t.form+'</div></button>';
+  }).join("");
+  g.querySelectorAll("[data-goto]").forEach(function(b){b.addEventListener("click",function(){show(b.dataset.goto);});});
+}
+
+/* ================= INSTRUMENT ================= */
+function findTL(id){
+  for(const it of TL){
+    if(it.fork){ if(it.left.id===id)return it.left; if(it.right.id===id)return it.right; }
+    else if(it.id===id)return it;
+  }
+  return null;
+}
+function renderTimeline(){
+  const tl=document.getElementById("timeline"); let h="";
+  TL.forEach(function(it){
+    if(it.fork){
+      h+='<div class="tl-fork"><div class="tl-fork-label">'+it.label+'</div><div class="fork-cols">'
+        +fkCard(it.left)+fkCard(it.right)+'</div></div>';
+    }else{
+      h+='<div class="tl-item" id="tli-'+it.id+'"><span class="tl-dot"></span>'
+        +'<button class="tl-btn" data-tl="'+it.id+'"><span class="tl-year">'+it.yr+'</span>'
+        +'<span><span class="tl-name">'+it.name+'</span><span class="tl-who">'+it.who+'</span></span></button></div>';
+    }
+  });
+  tl.innerHTML=h;
+  tl.querySelectorAll("[data-tl]").forEach(function(b){b.addEventListener("click",function(){selectTL(b.dataset.tl);});});
+  tl.querySelectorAll("[data-fk]").forEach(function(b){b.addEventListener("click",function(){selectTL(b.dataset.fk);});});
+}
+function fkCard(f){
+  return '<button class="fork-card" id="tli-'+f.id+'" data-fk="'+f.id+'">'
+   +'<div class="fk-tag">'+f.tag+'</div><div class="fk-name">'+f.name+'</div><div class="fk-who">'+f.who+'</div></button>';
+}
+function selectTL(id){
+  document.querySelectorAll(".tl-item,.fork-card").forEach(function(x){x.classList.remove("sel");});
+  const el=document.getElementById("tli-"+id); if(el)el.classList.add("sel");
+  const it=findTL(id); if(!it)return;
+  inspect("instrument",{eyebrow:(it.yr||it.tag),color:"var(--brass)",title:it.name,meta:it.who||"",body:it.body,crit:it.crit,fid:id});
+}
+
+/* ================= BLOODLINES ================= */
+const byId={};
+function renderLegend(){
+  document.getElementById("legend").innerHTML=Object.keys(SCHOOLS).map(function(k){
+    const s=SCHOOLS[k];
+    return '<span class="leg"><i style="background:'+s.color+'"></i>'+s.name+'</span>';
+  }).join("");
+}
+function renderGen(){
+  NODES.forEach(function(n){n.parents=[];n.children=[];byId[n.id]=n;});
+  EDGES.forEach(function(e){byId[e[0]].children.push(e[1]);byId[e[1]].parents.push(e[0]);});
+  const svg=document.getElementById("genealogy"); let s="";
+  EDGES.forEach(function(e,i){
+    const A=byId[e[0]],B=byId[e[1]],mx=(A.x+B.x)/2;
+    s+='<path id="ge-'+i+'" class="gedge'+(e[2]==="dash"?" dash":"")+'" d="M'+A.x+','+A.y+' C'+mx+','+A.y+' '+mx+','+B.y+' '+B.x+','+B.y+'"/>';
+  });
+  NODES.forEach(function(n){
+    const c=SCHOOLS[n.sc].color;
+    s+='<g class="gnode" id="gn-'+n.id+'" data-id="'+n.id+'" transform="translate('+n.x+','+n.y+')" tabindex="0" role="button" aria-label="'+n.name+'">'
+     +(n.conv?'<circle class="conv-ring" r="13" stroke="'+c+'"/>':'')
+     +'<circle r="7" fill="#0E0B0A" stroke="'+c+'" stroke-width="2"/>'
+     +'<text x="0" y="-14" text-anchor="middle">'+n.name+'</text>'
+     +'<text class="yr" x="0" y="24" text-anchor="middle">b.'+n.yr+'</text></g>';
+  });
+  svg.innerHTML=s;
+  svg.querySelectorAll(".gnode").forEach(function(g){
+    g.addEventListener("click",function(){selectGen(g.dataset.id);});
+    g.addEventListener("keydown",function(ev){if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();selectGen(g.dataset.id);}});
+  });
+  document.getElementById("graphReset").addEventListener("click",clearGen);
+}
+function walk(id,dir){
+  const seen=new Set(),stack=[id];
+  while(stack.length){
+    const cur=stack.pop();
+    byId[cur][dir].forEach(function(nx){ if(!seen.has(nx)){seen.add(nx);stack.push(nx);} });
+  }
+  return seen;
+}
+function clearGen(){
+  document.querySelectorAll("#genealogy .gnode, #genealogy .gedge").forEach(function(x){
+    x.classList.remove("dim","sel"); x.style.stroke="";
+  });
+  document.getElementById("insp-bloodlines").innerHTML='<p class="insp-empty">Tap a name to trace their lineage and read who they were.</p>';
+}
+function selectGen(id){
+  const n=byId[id];
+  const anc=walk(id,"parents"), desc=walk(id,"children");
+  const lin=new Set([id]); anc.forEach(function(a){lin.add(a);}); desc.forEach(function(d){lin.add(d);});
+  NODES.forEach(function(m){
+    const g=document.getElementById("gn-"+m.id);
+    g.classList.toggle("dim",!lin.has(m.id));
+    g.classList.toggle("sel",m.id===id);
+  });
+  const col=SCHOOLS[n.sc].color;
+  EDGES.forEach(function(e,i){
+    const el=document.getElementById("ge-"+i);
+    const up=(anc.has(e[0])) && (e[1]===id||anc.has(e[1]));
+    const dn=(e[0]===id||desc.has(e[0])) && desc.has(e[1]);
+    const lit=up||dn;
+    el.classList.toggle("dim",!lit);
+    el.style.stroke=lit?col:"";
+    el.style.strokeWidth=lit?"2.2":"";
+  });
+  const nAnc=anc.size,nDesc=desc.size;
+  inspect("bloodlines",{eyebrow:SCHOOLS[n.sc].name,color:col,title:n.name,
+    meta:"b. "+n.yr+" \u00b7 "+nAnc+" upstream \u00b7 "+nDesc+" downstream"+(n.conv?" \u00b7 CONVERGENCE NODE":""),
+    body:n.body,crit:n.crit,fid:n.id});
+}
+
+/* ================= HANDS ================= */
+function renderHands(){
+  const ax=document.getElementById("axis");
+  FIGS.forEach(function(f){
+    const b=document.createElement("button");
+    b.className="fig "+f.pos; b.dataset.camp=f.camp; b.dataset.id=f.id;
+    b.style.left=f.x+"%";
+    b.innerHTML='<span class="fig-dot"></span><span class="fig-label">'+f.name+'</span>';
+    b.setAttribute("aria-label",f.name);
+    b.addEventListener("click",function(){selectFig(f.id);});
+    ax.appendChild(b);
+  });
+  const er=document.getElementById("empRow");
+  er.innerHTML=EMPIRICAL.map(function(e){
+    return '<button class="emp-card" data-id="'+e.id+'"><div class="ec-name">'+e.name+'</div><div class="ec-who">'+e.who+'</div></button>';
+  }).join("");
+  er.querySelectorAll(".emp-card").forEach(function(c){c.addEventListener("click",function(){selectFig(c.dataset.id);});});
+}
+function selectFig(id){
+  document.querySelectorAll(".fig,.emp-card").forEach(function(x){x.classList.toggle("sel",x.dataset.id===id);});
+  const f=FIGS.find(function(x){return x.id===id;})||EMPIRICAL.find(function(x){return x.id===id;});
+  const campName=f.camp==="finger"?"Finger school":f.camp==="weight"?"Weight school":f.camp==="third"?"The third way":"The empirical turn";
+  const campCol=f.camp==="weight"?"var(--crimson)":f.camp==="third"?"var(--verdigris)":f.camp?"var(--bone)":"var(--verdigris)";
+  inspect("hands",{eyebrow:campName,color:campCol,title:f.name,meta:f.yr||f.who,body:f.body,crit:f.crit,fid:f.id});
+}
+
+/* ================= SYSTEM ================= */
+function arcPt(r,a){const rad=(a-90)*Math.PI/180;return [150+r*Math.cos(rad),150+r*Math.sin(rad)];}
+function wedgePath(i){
+  const a0=i*30-14,a1=i*30+14;
+  const p0=arcPt(140,a0),p1=arcPt(140,a1),p2=arcPt(80,a1),p3=arcPt(80,a0);
+  return "M"+p0[0].toFixed(1)+","+p0[1].toFixed(1)+" A140,140 0 0 1 "+p1[0].toFixed(1)+","+p1[1].toFixed(1)
+   +" L"+p2[0].toFixed(1)+","+p2[1].toFixed(1)+" A80,80 0 0 0 "+p3[0].toFixed(1)+","+p3[1].toFixed(1)+" Z";
+}
+function renderCoF(){
+  const svg=document.getElementById("cof"); let s="";
+  COF.forEach(function(k,i){
+    const tm=arcPt(118,i*30),tn=arcPt(93,i*30);
+    s+='<g class="cof-g" data-i="'+i+'" tabindex="0" role="button" aria-label="'+k.maj+' major">'
+     +'<path d="'+wedgePath(i)+'"/>'
+     +'<text class="cof-txt" x="'+tm[0].toFixed(1)+'" y="'+(tm[1]+5).toFixed(1)+'" text-anchor="middle">'+k.maj+'</text>'
+     +'<text class="cof-min" x="'+tn[0].toFixed(1)+'" y="'+(tn[1]+3).toFixed(1)+'" text-anchor="middle">'+k.min+'</text></g>';
+  });
+  s+='<text class="cof-center" x="150" y="147" text-anchor="middle">circle of</text>'
+   +'<text class="cof-center" x="150" y="160" text-anchor="middle">fifths</text>';
+  svg.innerHTML=s;
+  svg.querySelectorAll(".cof-g").forEach(function(g){
+    g.addEventListener("click",function(){cofSelect(+g.dataset.i);});
+    g.addEventListener("keydown",function(ev){if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();cofSelect(+g.dataset.i);}});
+  });
+}
+function cofSelect(i){
+  document.querySelectorAll(".cof-g").forEach(function(g,j){g.classList.toggle("sel",j===i);});
+  const k=COF[i],L=COF[(i+11)%12],R=COF[(i+1)%12];
+  document.getElementById("cofReadout").innerHTML=
+   '<div class="cof-key">'+k.maj+' major</div>'
+   +'<div class="cof-sig">'+k.sig+'</div>'
+   +'<div class="cof-rel">relative minor: '+k.min+'<br>nearest keys: '+L.maj+' &amp; '+R.maj+' \u2014 each shares 6 of 7 notes. One step round the circle = one accidental. That\u2019s the whole map.</div>';
+}
+function miniKbd(){
+  let s='<svg class="mini-kbd" viewBox="0 0 212 60" width="212" height="60" aria-hidden="true">';
+  for(let i=0;i<7;i++)s+='<rect x="'+(i*30)+'" y="0" width="29" height="58" rx="2" fill="'+(i===0?"#6DB59B":"#ECE3D2")+'"/>';
+  [0,1,3,4,5].forEach(function(i){s+='<rect x="'+(i*30+20)+'" y="0" width="18" height="36" fill="#0b0807"/>';});
+  s+='<text x="14" y="52" font-size="10" fill="#0E0B0A" font-family="monospace" text-anchor="middle">C</text></svg>';
+  return s;
+}
+function renderLadder(){
+  const el=document.getElementById("ladder");
+  el.innerHTML=LADDER.map(function(r,i){
+    return '<div class="rung" id="rung-'+i+'"><button class="rung-head" data-r="'+i+'" aria-expanded="false">'
+     +'<span class="rung-n">0'+(i+1)+'</span><span class="rung-t">'+r.t+'</span><span class="rung-caret">\u25b8</span></button>'
+     +'<div class="rung-body"><div class="rung-inner">'+(r.kbd?miniKbd():'')+'<p>'+r.body+'</p>'+flagBtnHTML("sys-"+i)+'</div></div></div>';
+  }).join("");
+  el.querySelectorAll(".rung-head").forEach(function(b){b.addEventListener("click",function(){toggleRung(+b.dataset.r);});});
+}
+function toggleRung(i){
+  const r=document.getElementById("rung-"+i);
+  const open=r.classList.toggle("open");
+  const body=r.querySelector(".rung-body");
+  body.style.maxHeight=open?body.scrollHeight+"px":"0";
+  r.querySelector(".rung-head").setAttribute("aria-expanded",open);
+}
+
+/* ================= FLAGS VIEW ================= */
+function renderFlags(){
+  const el=document.getElementById("flagsBody");
+  if(!flags.size){
+    el.innerHTML='<div class="flags-empty"><div class="fe-mark">\u2691</div><p>No flags yet. Wander the four territories \u2014 when a direction pulls at you, plant a flag and it collects here.</p></div>';
+    return;
+  }
+  const groups={};
+  flags.forEach(function(d,id){ (groups[d.terr]=groups[d.terr]||[]).push({id:id,label:d.label,sub:d.sub}); });
+  el.innerHTML=["instrument","bloodlines","hands","system"].filter(function(t){return groups[t];}).map(function(t){
+    return '<div class="flag-group"><div class="fg-head"><i style="background:'+T_COLOR[t]+'"></i>'+T_LABEL[t]+'</div>'
+     +groups[t].map(function(it){
+       return '<div class="flag-item"><div class="fi-body"><div class="fi-label">'+it.label+'</div><div class="fi-why">'+it.sub+'</div></div>'
+        +'<button class="fi-remove" data-rm="'+it.id+'" aria-label="Remove flag">\u00d7</button></div>';
+     }).join("")+'</div>';
+  }).join("");
+  el.querySelectorAll("[data-rm]").forEach(function(b){
+    b.addEventListener("click",function(){flags.delete(b.dataset.rm);updateFlagUI();renderFlags();});
+  });
+}
+
+/* ================= INIT ================= */
+TL.forEach(function(it){
+  if(it.fork){ reg(it.left.id,"instrument",it.left.why,it.left.tag+" \u00b7 "+it.left.who);
+               reg(it.right.id,"instrument",it.right.why,it.right.tag+" \u00b7 "+it.right.who); }
+  else reg(it.id,"instrument",it.why,it.yr+" \u00b7 "+it.who);
+});
+NODES.forEach(function(n){reg(n.id,"bloodlines",n.why,n.name+" \u00b7 b. "+n.yr+" \u00b7 "+SCHOOLS[n.sc].name);});
+FIGS.forEach(function(f){reg(f.id,"hands",f.why,f.name+" \u00b7 "+f.yr);});
+EMPIRICAL.forEach(function(e){reg(e.id,"hands",e.why,e.name+" \u00b7 "+e.who);});
+LADDER.forEach(function(r,i){reg("sys-"+i,"system",r.why,"rung 0"+(i+1)+" \u00b7 "+r.t);});
+
+renderKeys(); renderTerritories(); renderTimeline(); renderLegend(); renderGen();
+renderHands(); renderCoF(); renderLadder(); updateFlagUI();
+</script>
+</body>
+</html>
