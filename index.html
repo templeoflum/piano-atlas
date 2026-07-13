@@ -24,8 +24,8 @@
   --ebony:#0E0B0A; --lacquer:#171110; --lacquer2:#201814;
   --ivory:#ECE3D2; --ivory-dim:#B9AC98; --muted:#8A7D6C; --faint:#5E534A;
   --line:#2E2520; --line-lit:#453730;
-  --brass:#C8A44D; --crimson:#C94E5A; --bone:#CBAF80; --verdigris:#6DB59B;
-  --brass-deep:#5A4A22; --crimson-deep:#5A2229; --verd-deep:#254539;
+  --brass:#C8A44D; --crimson:#C94E5A; --bone:#CBAF80; --verdigris:#6DB59B; --steel:#6E86A6;
+  --brass-deep:#5A4A22; --crimson-deep:#5A2229; --verd-deep:#254539; --steel-deep:#2B3A47;
   --shadow:0 18px 50px -18px rgba(0,0,0,.8);
   --f-disp:'Fraunces',Georgia,serif;
   --f-body:'IBM Plex Sans',system-ui,sans-serif;
@@ -57,6 +57,7 @@ body{background:radial-gradient(120% 80% at 50% -10%, #1c1512 0%, var(--ebony) 5
 .nav-btn[data-view="bloodlines"].active{background:var(--crimson);color:#fff}
 .nav-btn[data-view="hands"].active{background:var(--bone)}
 .nav-btn[data-view="system"].active{background:var(--verdigris)}
+.nav-btn[data-view="improv"].active{background:var(--steel)}
 .flag-count{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;color:var(--ivory);background:var(--lacquer2);
   border:1px solid var(--line-lit);border-radius:20px;padding:.42rem .8rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:border-color .2s}
 .flag-count:hover{border-color:var(--crimson)}
@@ -73,7 +74,7 @@ main{max-width:1220px;margin:0 auto;padding:clamp(1.4rem,4vw,3rem) clamp(1rem,4v
 .section-title{font-family:var(--f-disp);font-weight:500;font-size:clamp(1.9rem,4.4vw,2.9rem);line-height:1.05;margin:.45rem 0 .5rem}
 .section-intro{color:var(--ivory-dim);font-size:1rem}
 .tint-instrument{color:var(--brass)}.tint-bloodlines{color:var(--crimson)}
-.tint-hands{color:var(--bone)}.tint-system{color:var(--verdigris)}
+.tint-hands{color:var(--bone)}.tint-system{color:var(--verdigris)}.tint-improv{color:var(--steel)}
 
 /* overview */
 .hero{padding:1rem 0 .5rem}
@@ -145,7 +146,7 @@ main{max-width:1220px;margin:0 auto;padding:clamp(1.4rem,4vw,3rem) clamp(1rem,4v
 .graph-hint{font-family:var(--f-mono);font-size:.62rem;color:var(--muted)}
 .graph-reset{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--line-lit);color:var(--muted);border-radius:5px;padding:.35rem .6rem;cursor:pointer}
 .graph-reset:hover{color:var(--ivory);border-color:var(--crimson)}
-.graph-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;
+.graph-scroll{overflow-x:auto;overscroll-behavior-x:contain;border:1px solid var(--line);border-radius:10px;
   background:linear-gradient(180deg,#120d0c,#0d0908);
   background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,.03) 1px, transparent 0);background-size:26px 26px}
 #genealogy{display:block;min-width:1120px;height:720px}
@@ -219,6 +220,23 @@ main{max-width:1220px;margin:0 auto;padding:clamp(1.4rem,4vw,3rem) clamp(1rem,4v
 .cof-audio{font-family:var(--f-mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:.5rem}
 .cof-audio b{color:var(--verdigris);font-weight:500}
 
+/* improvisation (territory V) */
+#improvCurve{display:block;min-width:1120px;height:460px}
+.icurve{fill:none;stroke:var(--steel);stroke-width:2.4;opacity:.55}
+.icurve.refuge{stroke-dasharray:5 5;stroke-width:1.8;opacity:.4}
+.iband{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;fill:var(--faint)}
+.itrough{font-family:var(--f-mono);font-size:11px;fill:var(--muted);font-style:italic}
+#improvCurve .gnode.sel circle{stroke-width:3}
+.tension-strip{margin-top:1.5rem}
+.ts-head{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--steel);border-bottom:1px solid var(--line);padding-bottom:.5rem;margin-bottom:.8rem}
+.ts-item{border-left:2px solid var(--steel-deep);padding:.05rem 0 .05rem .9rem;margin-bottom:.85rem}
+.ts-item b{display:block;font-family:var(--f-disp);font-weight:500;font-size:1.02rem;color:var(--ivory);margin-bottom:.2rem}
+.ts-item span{font-size:.9rem;color:var(--ivory-dim)}
+#improvLadder .rung{border-left-color:var(--steel-deep)}
+#improvLadder .rung.open{border-left-color:var(--steel)}
+#improvLadder .rung-caret{color:var(--muted)}
+.rung-unlock{font-family:var(--f-mono)!important;font-size:.7rem!important;color:var(--steel)!important;margin-bottom:.7rem!important}
+
 /* flags */
 .flags-intro{border-left:2px solid var(--crimson);padding-left:1rem;max-width:60ch;color:var(--ivory-dim);margin-bottom:1.8rem}
 .flags-intro b{color:var(--crimson)}
@@ -251,6 +269,7 @@ footer{max-width:1220px;margin:0 auto;padding:2rem clamp(1rem,4vw,2.4rem) 4rem;b
     <button class="nav-btn" data-view="bloodlines">II &middot; Bloodlines</button>
     <button class="nav-btn" data-view="hands">III &middot; Hands</button>
     <button class="nav-btn" data-view="system">IV &middot; System</button>
+    <button class="nav-btn" data-view="improv">V &middot; Improvisation</button>
   </nav>
   <button class="flag-count" id="flagCount" aria-label="View planted flags">
     <span class="fc-flag" aria-hidden="true">&#9873;</span><span class="fc-num" id="fcNum">0</span>&nbsp;flags
@@ -263,7 +282,7 @@ footer{max-width:1220px;margin:0 auto;padding:2rem clamp(1rem,4vw,2.4rem) 4rem;b
   <div class="hero">
     <span class="eyebrow tint-instrument">An explorable atlas &middot; not a syllabus</span>
     <h1 class="hero-title">The&nbsp;piano,<br><em>mapped.</em></h1>
-    <p class="hero-sub">Four territories of one instrument: how the machine was built, who taught whom, how to move your hands, and why twelve notes do what they do.</p>
+    <p class="hero-sub">Five territories of one instrument: how the machine was built, who taught whom, how to move your hands, why twelve notes do what they do &mdash; and how to make it up as you go.</p>
     <svg class="keys" viewBox="0 0 560 64" preserveAspectRatio="none" aria-hidden="true"></svg>
     <p class="thesis">Wander it. When something pulls at you &mdash; a technique, a lineage, a corner of theory &mdash; <b>plant a flag</b>. The flags become the shortlist you carry back to your teacher: <em>this is where I want to stand.</em></p>
   </div>
@@ -344,6 +363,29 @@ footer{max-width:1220px;margin:0 auto;padding:2rem clamp(1rem,4vw,2.4rem) 4rem;b
   </div>
 </section>
 
+<section class="view" id="view-improv">
+  <div class="section-head">
+    <span class="eyebrow tint-improv">Territory V &middot; The lost default</span>
+    <h2 class="section-title">Improvisation</h2>
+    <p class="section-intro">For three centuries, making it up <em>was</em> the skill &mdash; figured bass, cadenzas, extempore fugues. Then the cult of the fixed masterwork buried it, and the 20th century dug it back up: first the organ loft, then jazz. Tap a figure on the curve.</p>
+  </div>
+  <div class="graph-tools">
+    <div class="legend" id="improvLegend"></div>
+    <span class="graph-hint">height = how alive the practice was &nbsp;&middot;&nbsp; the trough is the &lsquo;lost art&rsquo; &nbsp;&middot;&nbsp; ringed &#9678; = stands on both sides &nbsp;&middot;&nbsp; drag sideways to explore</span>
+  </div>
+  <div class="split has-side">
+    <div>
+      <div class="graph-scroll">
+        <svg id="improvCurve" viewBox="0 0 1120 460" role="img" aria-label="Prevalence of keyboard improvisation over time"></svg>
+      </div>
+      <div class="tension-strip" id="improvTensions"></div>
+      <div class="ladder-cap" style="color:var(--steel);margin-top:1.7rem">How it&rsquo;s actually learned &mdash; ground up</div>
+      <div id="improvLadder"></div>
+    </div>
+    <aside class="inspector" id="insp-improv"><p class="insp-empty">Tap a figure to read what they did for improvisation &mdash; and where the story is legend.</p></aside>
+  </div>
+</section>
+
 <section class="view" id="view-flags">
   <div class="section-head">
     <span class="eyebrow tint-bloodlines">Your shortlist</span>
@@ -357,7 +399,7 @@ footer{max-width:1220px;margin:0 auto;padding:2rem clamp(1rem,4vw,2.4rem) 4rem;b
 
 <footer>
   METHOD &mdash; headwaters traced, tributaries followed, originators named as people, convergences &amp; divergences logged, criticisms kept, terminus: a direction to bring to your teacher.<br>
-  KEY SOURCES &mdash; Smithsonian (William Steinway Diary annotations) on the Babcock/Chickering/Steinway iron-frame priority; Adelson, <i>Erard: A Passion for the Piano</i> (OUP 2021) on the 1821 double escapement; piano-pedagogy literature (Gerig; UMD &amp; U.&nbsp;Pretoria dissertations) on Deppe/Matthay/Breithaupt/Ortmann/Kochevitsky. Dates simplified where honest historians still argue.
+  KEY SOURCES &mdash; Smithsonian (William Steinway Diary annotations) on the Babcock/Chickering/Steinway iron-frame priority; Adelson, <i>Erard: A Passion for the Piano</i> (OUP 2021) on the 1821 double escapement; piano-pedagogy literature (Gerig; UMD &amp; U.&nbsp;Pretoria dissertations) on Deppe/Matthay/Breithaupt/Ortmann/Kochevitsky; on improvisation &mdash; Gjerdingen, <i>Music in the Galant Style</i> (OUP 2007) &amp; Sanguinetti, <i>The Art of Partimento</i> (OUP 2012) on partimento, Gooley, <i>Fantasies of Improvisation</i> (OUP 2018) on the decline, Mortensen, <i>The Pianist&rsquo;s Guide to Historic Improvisation</i> (OUP 2020), and Murray, <i>French Masters of the Organ</i> (Yale 1998). Dates simplified where honest historians still argue; reported anecdotes (Bach&ndash;Marchand, Beethoven&ndash;Steibelt) flagged as such.
 </footer>
 <script>
 /* ================= DATA ================= */
@@ -365,7 +407,8 @@ const TERRITORIES=[
  {v:"instrument",num:"I / INSTRUMENT",name:"The Instrument",tag:"How the machine came to exist \u2014 dulcimer to Cristofori to Steinway, forks and all.",form:"Form \u2014 a branching timeline",color:"var(--brass)"},
  {v:"bloodlines",num:"II / BLOODLINES",name:"The Bloodlines",tag:"Who taught whom, Beethoven to Richter. The literal family tree.",form:"Form \u2014 a clickable genealogy graph",color:"var(--crimson)"},
  {v:"hands",num:"III / HANDS",name:"The Hands",tag:"The long argument about how to move \u2014 fingers vs. the whole arm.",form:"Form \u2014 a spectrum with two poles",color:"var(--bone)"},
- {v:"system",num:"IV / SYSTEM",name:"The System",tag:"Why twelve notes, and what they do. Theory from the physics up.",form:"Form \u2014 interactive theory toys",color:"var(--verdigris)"}
+ {v:"system",num:"IV / SYSTEM",name:"The System",tag:"Why twelve notes, and what they do. Theory from the physics up.",form:"Form \u2014 interactive theory toys",color:"var(--verdigris)"},
+ {v:"improv",num:"V / IMPROVISATION",name:"Improvisation",tag:"The lost default \u2014 keyboard music\u2019s first language, buried by the masterwork, rebuilt in the organ loft and in jazz.",form:"Form \u2014 a prevalence curve that dips and returns",color:"var(--steel)"}
 ];
 
 const TL=[
@@ -530,14 +573,105 @@ const LADDER=[
   body:"Chords take on roles inside a key: tonic (home \u2014 I), subdominant (departure \u2014 IV), dominant (tension \u2014 V). The pull of V back to I is the engine of Western music. Tension and release \u2014 that\u2019s the whole game, from a nursery rhyme to a symphony.",
   why:"Functional harmony \u2014 I / IV / V and cadences"}
 ];
+
+/* ===== TERRITORY V: IMPROVISATION ===== */
+const TRADITIONS={
+ partimento:{name:"Partimento / Baroque",color:"#C8A44D"},
+ classical:{name:"Classical spectacle",color:"#CBAF80"},
+ organ:{name:"French organ loft",color:"#6DB59B"},
+ jazz:{name:"Jazz",color:"#C94E5A"}
+};
+/* x \u2248 era (hand-placed, 20th c. given room), y = how alive the practice was (low y = alive, high y = dormant) */
+const IMPROV=[
+ {id:"bach",name:"Bach",yr:"1685\u20131750",trad:"partimento",x:110,y:100,lab:"up",xref:"Instrument & Bloodlines",legend:true,
+  body:"Prized in his lifetime first as an improviser, not a composer of fixed works \u2014 contemporaries reported he could extemporize a six-voice fugue on a handed-up subject. In 1747 he improvised for Frederick the Great on a royal theme, the seed of The Musical Offering.",
+  crit:"Reported, not proven. The six-voice-fugue claim rests on period testimony and his obituary; the 1717 Dresden contest, where Louis Marchand supposedly fled the city rather than face him, is credible at the core but embellished by early biographers.",
+  why:"Bach as extempore player (the six-voice fugue)"},
+ {id:"durante",name:"Durante",yr:"1684\u20131755",trad:"partimento",x:205,y:150,lab:"up",
+  body:"The Neapolitan conservatory master who codified the partimento: a shorthand bass line from which a student improvised a full four-part keyboard texture. He turned improvisation into a teachable, graded craft.",
+  why:"Partimento \u2014 improvisation as a taught craft"},
+ {id:"fenaroli",name:"Fenaroli",yr:"1730\u20131818",trad:"partimento",x:300,y:150,lab:"up",
+  body:"Durante\u2019s pedagogical heir. His Regole \u2014 rules and graded partimenti \u2014 was reprinted from 1775 into the 1930s. If one book taught Europe to improvise at the keyboard, it was his.",
+  why:"Fenaroli\u2019s Regole \u2014 the durable method"},
+ {id:"mozart",name:"Mozart",yr:"1756\u20131791",trad:"classical",x:445,y:82,lab:"up",xref:"Bloodlines",
+  body:"Famous for improvised fantasias and concerto cadenzas; the cadenzas we now play from the page are frozen snapshots of what was meant to be made up on the spot.",
+  crit:"His 1781 Vienna contest with Clementi before Joseph II is well documented (declared a draw) \u2014 as is his sniff, in a real letter, that Clementi was \u2018a mere mechanicus.\u2019",
+  why:"The improvised cadenza & fantasia (Mozart)"},
+ {id:"clementi",name:"Clementi",yr:"1752\u20131832",trad:"classical",x:380,y:172,lab:"dn",both:true,xref:"Instrument & Bloodlines",
+  body:"Toe-to-toe with Mozart as an improviser in 1781 \u2014 then a pillar of the printed-etude, \u2018correct-execution\u2019 culture that helped displace the very thing he was great at.",
+  crit:"Stands on both sides of the divide: a formidable improviser who also built the score-and-drill regime (Gradus ad Parnassum) that trained improvisation out of the generations after him.",
+  why:"Clementi \u2014 improviser turned drill-master"},
+ {id:"beethoven",name:"Beethoven",yr:"1770\u20131827",trad:"classical",x:515,y:94,lab:"up",xref:"Bloodlines",legend:true,
+  body:"Vienna\u2019s most feared improviser; witnesses describe listeners moved to tears. Improvisation, not the printed sonata, was how his contemporaries first knew his genius.",
+  crit:"The 1800 duel with Daniel Steibelt \u2014 Beethoven turning Steibelt\u2019s own cello part upside down and improvising on it until Steibelt stormed out and refused ever to share a room with him again \u2014 has a documented core and folkloric trimmings.",
+  why:"Beethoven\u2019s extempore power (the Steibelt duel)"},
+ {id:"liszt",name:"Liszt",yr:"1811\u20131886",trad:"classical",x:605,y:182,lab:"dn",both:true,xref:"Instrument & Bloodlines",
+  body:"Improvised operatic paraphrases and fantasies were central to his recitals \u2014 yet he also invented the memorized, fixed-program solo recital that hastened improvisation\u2019s decline.",
+  crit:"The other figure who straddles the turning point: a spellbinding improviser who helped build the very concert culture \u2014 canon, memorization, fidelity to the score \u2014 that made improvising a lost art.",
+  why:"Liszt \u2014 improviser who built the recital that buried it"},
+ {id:"franck",name:"Franck",yr:"1822\u20131890",trad:"organ",x:660,y:250,lab:"up",
+  body:"At Sainte-Clotilde and the Paris Conservatoire he made organ improvisation an examined academic discipline \u2014 extemporizing a symphonic movement on a submitted theme became the mark of mastery. The refuge where classical improvisation stayed alive.",
+  why:"Franck \u2014 improvisation as academic discipline"},
+ {id:"dupre",name:"Dupr\u00e9",yr:"1886\u20131971",trad:"organ",x:760,y:212,lab:"up",
+  body:"The transmission line from Widor\u2019s \u2018symphonic organ\u2019: Dupr\u00e9\u2019s Conservatoire improvisation class (1926\u201354) trained a generation, and his treatise systematized the craft. He reportedly improvised a full symphony on submitted themes.",
+  why:"Dupr\u00e9 \u2014 the systematized organ method"},
+ {id:"messiaen",name:"Messiaen",yr:"1908\u20131992",trad:"organ",x:858,y:182,lab:"up",
+  body:"Organist of La Trinit\u00e9 in Paris for some sixty years, improvising weekly \u2014 and his improvisations fed his notated language: modes of limited transposition, birdsong, colour-chords. Here the \u2018lost art\u2019 directly generated canonical works.",
+  why:"Messiaen \u2014 improvisation feeding composition"},
+ {id:"cochereau",name:"Cochereau",yr:"1924\u20131984",trad:"organ",x:928,y:158,lab:"up",
+  body:"Organist of Notre-Dame de Paris (1955\u201384) and the popular apex of the French tradition: his live improvised symphonies and fugues were recorded and sold, making improvisation a headline attraction again.",
+  why:"Cochereau \u2014 the recorded improvised symphony"},
+ {id:"morton",name:"Jelly Roll Morton",yr:"1890\u20131941",trad:"jazz",x:705,y:298,lab:"dn",
+  body:"Transmuted ragtime and stride into a personal improvising language, insisting on the freedom to reinvent a piece at every performance \u2014 an emblem of jazz taking improvisation as its whole foundation.",
+  why:"Morton \u2014 stride & the freedom to reinvent"},
+ {id:"tatum",name:"Art Tatum",yr:"1909\u20131956",trad:"jazz",x:795,y:258,lab:"dn",
+  body:"The stride-into-modern virtuoso whose reharmonizations and cascading runs reset the ceiling for what solo-piano improvisation could be \u2014 a touchstone for jazz and classical listeners alike.",
+  why:"Tatum \u2014 reharmonization & virtuosity"},
+ {id:"bebop",name:"Powell & Monk",yr:"1920s\u201360s",trad:"jazz",x:865,y:232,lab:"dn",
+  body:"Bebop\u2019s keyboard architects. Bud Powell forged the fast, linear, single-note improvised line; Thelonious Monk built a jagged, wholly personal improvising style. Together they define the bebop rung.",
+  why:"Bebop piano (Powell & Monk)"},
+ {id:"evans",name:"Bill Evans",yr:"1929\u20131980",trad:"jazz",x:955,y:182,lab:"dn",
+  body:"Brought classical voice-leading and impressionist harmony \u2014 rootless, quartal voicings \u2014 into jazz, and with Miles Davis\u2019s Kind of Blue (1959) helped launch modal improvisation: fewer chords, more scalar and motivic freedom.",
+  why:"Bill Evans \u2014 modal jazz & voicings"},
+ {id:"hancock",name:"Herbie Hancock",yr:"b.1940",trad:"jazz",x:1015,y:135,lab:"dn",
+  body:"Extended modal and post-bop improvising into fusion and free interplay \u2014 a living link from Evans-era harmony to the present day.",
+  why:"Hancock \u2014 post-bop & fusion"},
+ {id:"jarrett",name:"Keith Jarrett",yr:"b.1945",trad:"jazz",x:1078,y:95,lab:"up",
+  body:"Took improvisation to its logical extreme: entire solo concerts with nothing prepared (The K\u00f6ln Concert, 1975) \u2014 the modern echo of the Baroque free fantasia, a full evening spun from nothing. The circle closes.",
+  why:"Jarrett \u2014 the wholly improvised concert"}
+];
+const IMPROV_MAIN=[[40,112],[210,140],[440,82],[540,150],[655,296],[770,285],[965,175],[1092,95]];
+const IMPROV_REFUGE=[[652,294],[720,250],[830,205],[930,160]];
+const IMPROV_BANDS=[
+ {x:180,t:"Baroque \u2014 the default"},
+ {x:470,t:"Classical \u2014 the spectacle"},
+ {x:855,t:"the two revivals \u2014 organ loft & jazz"}
+];
+const IMPROV_TENSIONS=[
+ {q:"Did the masterwork kill it?",a:"Once the printed score became sacred and the canon of \u2018great works\u2019 the point of concert life, the performer\u2019s job shifted from co-creating to faithfully reproducing. Counter-view: it didn\u2019t die, it migrated \u2014 to the organ loft, then to jazz \u2014 and turned into a Romantic ideal even as the live practice waned."},
+ {q:"Learned formulas vs. spontaneous genius",a:"The partimento/schema school (Gjerdingen, Sanguinetti) says improvisation is fluent recombination of drilled patterns \u2014 cadences, the Rule of the Octave, stock voice-leading. That punctures the Romantic myth of unmediated inspiration. Bach and Charlie Parker both fit \u2018learned formulas\u2019 better than the myth admits."},
+ {q:"Real-time composition, or recombination?",a:"The heroic framing calls a great solo instantaneous composition; the deflationary view calls it skilled recombination of licks and ii\u2013V\u2013I formulas. Most honest players say both \u2014 the fight is how much credit \u2018spontaneity\u2019 deserves over deep prior preparation."},
+ {q:"Who \u2018really\u2019 improvises?",a:"Classical gatekeepers long dismissed jazz as merely \u2018making it up\u2019; jazz musicians note that classical performers largely can\u2019t improvise at all, and haven\u2019t for a century. The partimento revival scrambles the fight by showing the classical tradition\u2019s own foundations were improvisation-based."},
+ {q:"Notation \u2014 prosthesis or straitjacket?",a:"Notation preserved music across time \u2014 but did it also amputate a core musicianship skill, producing virtuosos who can\u2019t create a single original bar? The revival movement treats improvisation as a lost literacy to be relearned."}
+];
+const IMPROV_LADDER=[
+ {t:"Figured bass / thoroughbass",body:"Read numerals under a bass line and realize the chords in real time \u2014 the working literacy of every Baroque keyboardist.",unlock:"harmony as reflex, not calculation \u2014 accompany anything on sight"},
+ {t:"Cadences & the Rule of the Octave",body:"Memorize the standard ways phrases end, and the default harmony for each scale-degree in the bass.",unlock:"fluent, idiomatic phrase-endings and a harmony for any bass note"},
+ {t:"Partimento schemata",body:"Drill stock contrapuntal modules \u2014 Romanesca, Prinner, Monte and Fonte \u2014 as movable building blocks.",unlock:"whole passages, not just chords \u2014 sentences, not words"},
+ {t:"Diminution & ornamentation",body:"Fill in and decorate a skeletal line: divisions, passing tones, trills, free preludizing.",unlock:"melodic invention and personal voice \u2014 the cadenza and free fantasia"},
+ {t:"Blues & the ii\u2013V\u2013I",body:"Internalize the blues form and the ii\u2013V\u2013I engine with rootless, shell voicings. This is the hinge where the classical craft becomes the jazz craft.",unlock:"the entire jazz-standards repertoire and its harmonic grammar",prog:true},
+ {t:"The bebop line",body:"Superimpose scales, arpeggios and chromatic approach tones over fast-moving changes.",unlock:"long, propulsive melodic lines through complex progressions"},
+ {t:"Modal / scalar playing",body:"Work from modes and a few chords rather than dense functional changes.",unlock:"motivic and textural freedom, space, and open-ended form"},
+ {t:"Free / fully-improvised",body:"Abandon fixed harmony and form; generate structure live from motive, gesture, and listening.",unlock:"the whole-evening improvisation \u2014 Baroque fantasia and Jarrett\u2019s K\u00f6ln converge here"}
+];
 </script>
 <script>
 /* ================= STATE & FLAGS ================= */
 let currentView="overview";
 const flags=new Map();
 const FLAG_DEFS={};
-const T_LABEL={instrument:"I \u00b7 The Instrument",bloodlines:"II \u00b7 The Bloodlines",hands:"III \u00b7 The Hands",system:"IV \u00b7 The System"};
-const T_COLOR={instrument:"var(--brass)",bloodlines:"var(--crimson)",hands:"var(--bone)",system:"var(--verdigris)"};
+const T_LABEL={instrument:"I \u00b7 The Instrument",bloodlines:"II \u00b7 The Bloodlines",hands:"III \u00b7 The Hands",system:"IV \u00b7 The System",improv:"V \u00b7 Improvisation"};
+const T_COLOR={instrument:"var(--brass)",bloodlines:"var(--crimson)",hands:"var(--bone)",system:"var(--verdigris)",improv:"var(--steel)"};
 
 /* localStorage persistence \u2014 store only flag ids; defs are rebuilt via reg() each load.
    Falls back to pure in-memory if storage is unavailable (private mode, quota, etc.). */
@@ -809,6 +943,12 @@ function playChord(root,ivals){
   const t=ac.currentTime;
   ivals.forEach(function(iv,n){voice(root+iv,t+n*0.02,1.5,0.62);});
 }
+/* a chord progression: [{root,iv}] played in sequence (used for the ii–V–I demo) */
+function playProg(chords){
+  const ac=audioReady(); if(!ac)return;
+  let t=ac.currentTime;
+  chords.forEach(function(c){ c.iv.forEach(function(iv,n){voice(c.root+iv,t+n*0.02,1.1,0.55);}); t+=0.78; });
+}
 
 /* ================= SYSTEM ================= */
 function arcPt(r,a){const rad=(a-90)*Math.PI/180;return [150+r*Math.cos(rad),150+r*Math.sin(rad)];}
@@ -885,6 +1025,84 @@ function toggleRung(i){
   r.querySelector(".rung-head").setAttribute("aria-expanded",open);
 }
 
+/* ================= IMPROVISATION (territory V) ================= */
+function smoothPath(p){ // Catmull-Rom -> cubic bezier through the points
+  if(p.length<2)return "";
+  let d="M"+p[0][0]+","+p[0][1];
+  for(let i=0;i<p.length-1;i++){
+    const p0=p[i-1]||p[i],p1=p[i],p2=p[i+1],p3=p[i+2]||p[i+1];
+    const c1x=p1[0]+(p2[0]-p0[0])/6,c1y=p1[1]+(p2[1]-p0[1])/6;
+    const c2x=p2[0]-(p3[0]-p1[0])/6,c2y=p2[1]-(p3[1]-p1[1])/6;
+    d+=" C"+c1x.toFixed(1)+","+c1y.toFixed(1)+" "+c2x.toFixed(1)+","+c2y.toFixed(1)+" "+p2[0]+","+p2[1];
+  }
+  return d;
+}
+function renderImprovLegend(){
+  document.getElementById("improvLegend").innerHTML=Object.keys(TRADITIONS).map(function(k){
+    const s=TRADITIONS[k];
+    return '<span class="leg"><i style="background:'+s.color+'"></i>'+s.name+'</span>';
+  }).join("");
+}
+function renderImprov(){
+  const svg=document.getElementById("improvCurve"); let s="";
+  s+='<path class="icurve" d="'+smoothPath(IMPROV_MAIN)+'"/>';
+  s+='<path class="icurve refuge" d="'+smoothPath(IMPROV_REFUGE)+'"/>';
+  IMPROV_BANDS.forEach(function(b){s+='<text class="iband" x="'+b.x+'" y="448" text-anchor="middle">'+b.t+'</text>';});
+  s+='<text class="itrough" x="655" y="378" text-anchor="middle">the trough — the lost art, c.1830–1900</text>';
+  IMPROV.forEach(function(f){
+    const c=TRADITIONS[f.trad].color,up=(f.lab!=="dn");
+    s+='<g class="gnode" id="in-'+f.id+'" data-id="'+f.id+'" transform="translate('+f.x+','+f.y+')" tabindex="0" role="button" aria-label="'+f.name+'">'
+     +(f.both?'<circle class="conv-ring" r="13" stroke="'+c+'"/>':'')
+     +'<circle r="7" fill="#0E0B0A" stroke="'+c+'" stroke-width="2"/>'
+     +'<text x="0" y="'+(up?-16:28)+'" text-anchor="middle">'+f.name+'</text>'
+     +'<text class="yr" x="0" y="'+(up?-31:42)+'" text-anchor="middle">'+f.yr+'</text></g>';
+  });
+  svg.innerHTML=s;
+  svg.querySelectorAll(".gnode").forEach(function(g){
+    g.addEventListener("click",function(){selectImprov(g.dataset.id);});
+    g.addEventListener("keydown",function(ev){if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();selectImprov(g.dataset.id);}});
+  });
+}
+function selectImprov(id){
+  const f=IMPROV.find(function(x){return x.id===id;}); if(!f)return;
+  document.querySelectorAll("#improvCurve .gnode").forEach(function(g){g.classList.toggle("sel",g.dataset.id===id);});
+  const tr=TRADITIONS[f.trad];
+  inspect("improv",{
+    eyebrow:tr.name+(f.xref?" · also in "+f.xref:""),color:tr.color,title:f.name,
+    meta:f.yr+(f.both?" · STANDS ON BOTH SIDES":"")+(f.legend?" · legend-tinged":""),
+    body:f.body,crit:f.crit,fid:f.id});
+}
+function renderImprovTensions(){
+  document.getElementById("improvTensions").innerHTML=
+   '<div class="ts-head">The fights this territory keeps</div>'
+   +IMPROV_TENSIONS.map(function(t){return '<div class="ts-item"><b>'+t.q+'</b><span>'+t.a+'</span></div>';}).join("");
+}
+const IIVI=[{root:62,iv:[0,3,7,10]},{root:67,iv:[0,4,7,10]},{root:60,iv:[0,4,7,11]}]; // Dm7 – G7 – Cmaj7
+function renderImprovLadder(){
+  const el=document.getElementById("improvLadder");
+  el.innerHTML=IMPROV_LADDER.map(function(r,i){
+    return '<div class="rung" id="irung-'+i+'"><button class="rung-head" data-ir="'+i+'" aria-expanded="false">'
+     +'<span class="rung-n" style="color:var(--steel)">0'+(i+1)+'</span><span class="rung-t">'+r.t+'</span><span class="rung-caret">▸</span></button>'
+     +'<div class="rung-body"><div class="rung-inner"><p>'+r.body+'</p><p class="rung-unlock">↳ unlocks: '+r.unlock+'</p>'
+     +(r.prog?'<div class="chord-pad"><button class="chord-btn" data-prog="1">▶ hear a ii–V–I in C</button></div>':'')
+     +flagBtnHTML("imp-"+i)+'</div></div></div>';
+  }).join("");
+  el.querySelectorAll(".rung-head").forEach(function(b){b.addEventListener("click",function(){toggleIRung(+b.dataset.ir);});});
+  el.querySelectorAll("[data-prog]").forEach(function(b){
+    b.addEventListener("click",function(){
+      playProg(IIVI);
+      b.classList.add("ring"); setTimeout(function(){b.classList.remove("ring");},220);
+    });
+  });
+}
+function toggleIRung(i){
+  const r=document.getElementById("irung-"+i);
+  const open=r.classList.toggle("open");
+  const body=r.querySelector(".rung-body");
+  body.style.maxHeight=open?body.scrollHeight+"px":"0";
+  r.querySelector(".rung-head").setAttribute("aria-expanded",open);
+}
+
 /* ================= FLAGS VIEW ================= */
 function renderFlags(){
   const el=document.getElementById("flagsBody");
@@ -894,7 +1112,7 @@ function renderFlags(){
   }
   const groups={};
   flags.forEach(function(d,id){ (groups[d.terr]=groups[d.terr]||[]).push({id:id,label:d.label,sub:d.sub}); });
-  el.innerHTML=["instrument","bloodlines","hands","system"].filter(function(t){return groups[t];}).map(function(t){
+  el.innerHTML=["instrument","bloodlines","hands","system","improv"].filter(function(t){return groups[t];}).map(function(t){
     return '<div class="flag-group"><div class="fg-head"><i style="background:'+T_COLOR[t]+'"></i>'+T_LABEL[t]+'</div>'
      +groups[t].map(function(it){
        return '<div class="flag-item"><div class="fi-body"><div class="fi-label">'+it.label+'</div><div class="fi-why">'+it.sub+'</div></div>'
@@ -916,11 +1134,20 @@ NODES.forEach(function(n){reg(n.id,"bloodlines",n.why,n.name+" \u00b7 b. "+n.yr+
 FIGS.forEach(function(f){reg(f.id,"hands",f.why,f.name+" \u00b7 "+f.yr);});
 EMPIRICAL.forEach(function(e){reg(e.id,"hands",e.why,e.name+" \u00b7 "+e.who);});
 LADDER.forEach(function(r,i){reg("sys-"+i,"system",r.why,"rung 0"+(i+1)+" \u00b7 "+r.t);});
+IMPROV.forEach(function(f){reg(f.id,"improv",f.why,f.name+" \u00b7 "+f.yr);});
+IMPROV_LADDER.forEach(function(r,i){reg("imp-"+i,"improv",r.t,"rung 0"+(i+1)+" \u2014 "+r.unlock);});
 
 loadFlags(); // restore planted flags from a previous visit before anything renders
 
 renderKeys(); renderTerritories(); renderTimeline(); renderLegend(); renderGen();
-renderHands(); renderCoF(); renderLadder(); updateFlagUI();
+renderHands(); renderCoF(); renderLadder();
+renderImprovLegend(); renderImprov(); renderImprovTensions(); renderImprovLadder();
+updateFlagUI();
+
+/* prime the audio context on the first user gesture so mobile browsers (which start it
+   suspended and only allow resume inside a gesture) have it running by the first tap */
+function unlockAudio(){audioReady();["pointerdown","touchend","keydown"].forEach(function(ev){window.removeEventListener(ev,unlockAudio);});}
+["pointerdown","touchend","keydown"].forEach(function(ev){window.addEventListener(ev,unlockAudio,{passive:true});});
 </script>
 </body>
 </html>
